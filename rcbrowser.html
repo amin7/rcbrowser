@@ -1,0 +1,51 @@
+<html>
+  <head>
+
+  <title>rc control</title>
+  <!-- 
+  %%PLUGIN_CSS%%
+-->
+<style type="text/css">
+  body { background-color: #ddd; }
+  #container { height: 100%; width: 100%; display: table; }  
+ #humm_div,#temper_div,#temper_ext_div,#humm_ext_div,#temper_balcon_div{ 
+  	display: inline-block;
+  	margin: 0 auto;
+ }
+        
+</style>
+  <script src="libs/jquery-2.1.1.js"></script>
+  <script src="libs/jquery.mobile.custom.js"></script>
+<script src="libs/thumbstick.js"></script>
+<script>
+  $(document).ready(function() {    
+    // Create a thumbstick in the canvas.
+    var thumbStick = new ThumbStick('stage')
+    thumbStick.init()
+    $(window).resize(thumbStick.onResizeCanvas.bind(thumbStick))
+    // Listen for directional events from the thumbstick and send them to
+    // the Raspberry Pi, which sends corresponding signals to the car's
+    // remote control.
+    thumbStick.addEventListener(
+      ['UP', 'DOWN', 'LEFT', 'RIGHT',
+      'STOPUP', 'STOPDOWN', 'STOPLEFT', 'STOPRIGHT'],
+      function(directionEvent) {
+        try {
+          console.log('connected!'+directionEvent);
+        } catch (error) { }
+      })
+  })
+</script>      
+  </head>
+
+  <body>
+    <img src="http://192.168.43.199:8081" />     
+    <div id="container">      
+      temerature<br/>
+      <canvas id="stage" width="320" height="240"></canvas>
+	  </div>
+  </body>
+</html>
+
+
+
