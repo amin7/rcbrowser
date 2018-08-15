@@ -4,25 +4,13 @@ MODULE_CFLAGS=-DMG_DISABLE_DAV_AUTH -DMG_ENABLE_FAKE_DAVLOCK
 MONGOOSE_DIR = ../mongoose
 SOURCES = rcbrowser.cpp\
 	 $(MONGOOSE_DIR)/mongoose.c
-CFLAGS = -g -W -Wall -Werror -I$(MONGOOSE_DIR) -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)
+CFLAGS = -g -W -Wall -I$(MONGOOSE_DIR) -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)  -std=c++11
 
 all: $(PROG)
-
-ifeq ($(OS), Windows_NT)
-# TODO(alashkin): enable SSL in Windows
-CFLAGS += -lws2_32
-CC = gcc
-else
 CFLAGS += -pthread
-endif
-
-ifdef ASAN
-CC = clang
-CFLAGS += -fsanitize=address
-endif
 
 $(PROG): $(SOURCES)
-	$(CC) $(SOURCES) -o $@ $(CFLAGS)
+	$(CXX) $(SOURCES) -o $@ $(CFLAGS)
 
 $(PROG).exe: $(SOURCES)
 	cl $(SOURCES) /I../.. /MD /Fe$@

@@ -32,6 +32,7 @@
       function(directionEvent) {
         try {
           console.log('connected!'+directionEvent);
+          $.get('/direction='+directionEvent)
         } catch (error) { }
       })
   })
