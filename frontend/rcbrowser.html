@@ -16,30 +16,12 @@
 </style>
   <script src="libs/jquery-2.1.1.js"></script>
   <script src="libs/jquery.mobile.custom.js"></script>
-<script src="libs/thumbstick.js"></script>
-<script>
-  $(document).ready(function() {    
-    // Create a thumbstick in the canvas.
-    var thumbStick = new ThumbStick('stage')
-    thumbStick.init()
-    $(window).resize(thumbStick.onResizeCanvas.bind(thumbStick))
-    // Listen for directional events from the thumbstick and send them to
-    // the Raspberry Pi, which sends corresponding signals to the car's
-    // remote control.
-    thumbStick.addEventListener(
-      ['UP', 'DOWN', 'LEFT', 'RIGHT',
-      'STOPUP', 'STOPDOWN', 'STOPLEFT', 'STOPRIGHT'],
-      function(directionEvent) {
-        try {
-          console.log('connected!'+directionEvent);
-          $.get('/direction='+directionEvent)
-        } catch (error) { }
-      })
-  })
-</script>      
+<script src="libs/virtualjoystick.js"></script>
+<script src="rcbrowser.js"></script>
   </head>
 
   <body>
+  <body onload="init()">
     <img src="http://192.168.43.199:8081" />     
     <div id="container">      
       temerature<br/>

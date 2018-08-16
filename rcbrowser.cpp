@@ -10,25 +10,36 @@
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 
-static void handle_sum_call(struct mg_connection *nc, struct http_message *hm) {
-  char n1[100], n2[100];
-  double result;
+//static void handle_sum_call(struct mg_connection *nc, struct http_message *hm) {
+//  char n1[100], n2[100];
+//  double result;
+//
+//  /* Get form variables */
+//  mg_get_http_var(&hm->body, "n1", n1, sizeof(n1));
+//  mg_get_http_var(&hm->body, "n2", n2, sizeof(n2));
+//
+//  /* Send headers */
+//  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+//
+//  /* Compute the result and send it back as a JSON object */
+//  result = strtod(n1, NULL) + strtod(n2, NULL);
+//  mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
+//  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+//}
 
-  /* Get form variables */
-  mg_get_http_var(&hm->body, "n1", n1, sizeof(n1));
-  mg_get_http_var(&hm->body, "n2", n2, sizeof(n2));
-
-  /* Send headers */
-  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-
-  /* Compute the result and send it back as a JSON object */
-  result = strtod(n1, NULL) + strtod(n2, NULL);
-  mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
-  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+void print(mg_str str) {
+  const char *t = str.p;
+  size_t len = str.len;
+  while (len--) {
+    std::cout << *t;
+    t++;
+  }
+  std::cout << std::endl;
 }
 
 static void handle_direction(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "handle_direction" << std::endl;
+  print(hm->body);
   char n1[100], n2[100];
   double result;
 
@@ -50,20 +61,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
   switch (ev) {
   case MG_EV_HTTP_REQUEST: {
-
-    const char *t = hm->uri.p;
-    size_t len = hm->uri.len;
-    while (len--) {
-      std::cout << *t;
-      t++;
-    }
-    std::cout << std::endl;
-    }
+    print(hm->uri);
     if (mg_vcmp(&hm->uri, "/") == 0) {
       mg_http_serve_file(nc, hm, "./frontend/rcbrowser.html", mg_mk_str("text/html"), mg_mk_str(""));
     } else {
-      if (mg_vcmp(&hm->uri, "/api/v1/sum") == 0) {
-        handle_sum_call(nc, hm); /* Handle RESTful call */
+      if (mg_vcmp(&hm->uri, "/joystick") == 0) {
+        handle_direction(nc, hm); /* Handle RESTful call */
       } else if (mg_vcmp(&hm->uri, "/printcontent") == 0) {
         char buf[100] = {0};
         memcpy(buf, hm->body.p,
@@ -77,6 +80,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     default:
       break;
   }
+}
 }
 
 //int main(int argc, char *argv[]) {
