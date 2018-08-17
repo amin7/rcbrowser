@@ -6,26 +6,23 @@
 #include "mongoose.h"
 #include <iostream>
 #include <stdint.h>
+#include <thread>
+#include <chrono>
+#include <string>
+#include "rapidjson/reader.h"
+#include "rapidjson/document.h"     // rapidjson's DOM-style API
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
+int n = 0;
 
-//static void handle_sum_call(struct mg_connection *nc, struct http_message *hm) {
-//  char n1[100], n2[100];
-//  double result;
-//
-//  /* Get form variables */
-//  mg_get_http_var(&hm->body, "n1", n1, sizeof(n1));
-//  mg_get_http_var(&hm->body, "n2", n2, sizeof(n2));
-//
-//  /* Send headers */
-//  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-//
-//  /* Compute the result and send it back as a JSON object */
-//  result = strtod(n1, NULL) + strtod(n2, NULL);
-//  mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
-//  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
-//}
+void call_from_thread() {
+  std::cout << "thread function" << std::endl;
+  while (1) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::cout << "n=" << n << std::endl;
+  }
+}
 
 void print(mg_str str) {
   const char *t = str.p;
@@ -39,7 +36,15 @@ void print(mg_str str) {
 
 static void handle_direction(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "handle_direction" << std::endl;
+  n++;
   print(hm->body);
+  std::string json;
+  json.append(hm->body.p, hm->body.len);
+  std::cout << "json" << json << std::endl;
+  rapidjson::Document d;
+  d.Parse(json.c_str());
+  std::cout << "DOM" << "deltaX" << d["deltaX"].GetInt() << "deltaY" << d["deltaY"].GetInt() << std::endl;
+  
   char n1[100], n2[100];
   double result;
 
@@ -85,6 +90,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
 //int main(int argc, char *argv[]) {
 int main() {
+  std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
+  std::thread t1(call_from_thread);
   struct mg_mgr mgr;
   struct mg_connection *nc;
   struct mg_bind_opts bind_opts;

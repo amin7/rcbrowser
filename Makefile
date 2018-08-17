@@ -5,9 +5,11 @@ MONGOOSE_DIR = ../mongoose
 SOURCES = rcbrowser.cpp\
 	 $(MONGOOSE_DIR)/mongoose.c
 CFLAGS = -g -W -Wall -I$(MONGOOSE_DIR) -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)  -std=c++11
+CFLAGS += -pthread
+CFLAGS += -I../rapidjson/include/
 
 all: $(PROG)
-CFLAGS += -pthread
+
 
 $(PROG): $(SOURCES)
 	$(CXX) $(SOURCES) -o $@ $(CFLAGS)

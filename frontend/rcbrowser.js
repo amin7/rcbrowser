@@ -26,7 +26,7 @@ function init(){
           if(xmlHttp.readyState==0||xmlHttp.readyState==4){
         	  var obj = new Object();
               obj.deltaX=tX;
-              obj.deltaD=tY;
+              obj.deltaY=tY;
               var data = JSON.stringify(obj);
     	      xmlHttp.open('PUT','joystick',true);
     	      xmlHttp.setRequestHeader("Content-type", "application/json");
