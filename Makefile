@@ -8,16 +8,21 @@ CFLAGS = -g -W -Wall -I$(MONGOOSE_DIR) -Wno-unused-function $(CFLAGS_EXTRA) $(MO
 CFLAGS += -pthread
 CFLAGS += -I../rapidjson/include/
 
+OBJ_DIR = ./obj/
+MKDIR_P = mkdir -p
+
 all: $(PROG)
 
+$(OBJ_DIR):
+	${MKDIR_P} ${OBJ_DIR}
 
-$(PROG): $(SOURCES)
-	$(CXX) $(SOURCES) -o $@ $(CFLAGS)
+$(PROG): $(OBJ_DIR) $(SOURCES)
+	$(CXX) $(SOURCES) -o $(OBJ_DIR)$@ $(CFLAGS)
 
-$(PROG).exe: $(SOURCES)
-	cl $(SOURCES) /I../.. /MD /Fe$@
+$(PROG).exe: $(OBJ_DIR) $(SOURCES)
+	cl $(SOURCES) /I../.. /MD /Fe$(OBJ_DIR)$@
 
 clean:
-	rm -rf *.gc* *.dSYM *.exe *.obj *.o a.out $(PROG)
+	rm -rf $(OBJ_DIR)
 
 
