@@ -7,6 +7,7 @@ SOURCES = rcbrowser.cpp\
 CFLAGS = -g -W -Wall -I$(MONGOOSE_DIR) -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)  -std=c++11
 CFLAGS += -pthread
 CFLAGS += -I../rapidjson/include/
+CFLAGS +=  -D _SIMULATION_
 
 OBJ_DIR = ./obj/
 MKDIR_P = mkdir -p

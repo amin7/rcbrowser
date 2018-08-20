@@ -11,6 +11,9 @@
 #include <string>
 #include "rapidjson/reader.h"
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
+#ifndef _SIMULATION_
+#include <wiringPi.h>
+#endif
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
@@ -37,6 +40,9 @@ void print(mg_str str) {
 static void handle_direction(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "handle_direction" << std::endl;
   n++;
+#ifndef _SIMULATION_
+  pinMode(0, LOW);
+#endif
   print(hm->body);
   std::string json;
   json.append(hm->body.p, hm->body.len);
@@ -44,21 +50,18 @@ static void handle_direction(struct mg_connection *nc, struct http_message *hm) 
   rapidjson::Document d;
   d.Parse(json.c_str());
   std::cout << "DOM" << "deltaX" << d["deltaX"].GetInt() << "deltaY" << d["deltaY"].GetInt() << std::endl;
-  
-  char n1[100], n2[100];
-  double result;
 
-  /* Get form variables */
-  mg_get_http_var(&hm->body, "n1", n1, sizeof(n1));
-  mg_get_http_var(&hm->body, "n2", n2, sizeof(n2));
+//  /* Send headers */
+//  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+//
+//  /* Compute the result and send it back as a JSON object */
+//  auto result = 0;
+//  mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
+//  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+  mg_send_response_line(nc, 200, "");
+  nc->flags |= MG_F_SEND_AND_CLOSE;
+  //mg_send(nc, "", 0);
 
-  /* Send headers */
-  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-
-  /* Compute the result and send it back as a JSON object */
-  result = strtod(n1, NULL) + strtod(n2, NULL);
-  mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
-  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -90,6 +93,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
 //int main(int argc, char *argv[]) {
 int main() {
+#ifndef _SIMULATION_
+  wiringPiSetup();
+#endif
   std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
   std::thread t1(call_from_thread);
   struct mg_mgr mgr;
