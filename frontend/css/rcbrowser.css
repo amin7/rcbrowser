@@ -46,3 +46,8 @@ body {
   height: 40px;  
   }
   
+  #ultrasonic{
+  float:left;
+    width: 320px;
+    height: 240px;      
+  }

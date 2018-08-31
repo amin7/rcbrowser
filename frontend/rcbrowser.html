@@ -8,7 +8,9 @@
   <script src="libs/jquery-2.1.1.js"></script>
   <script src="libs/jquery.mobile.custom.js"></script>
 <script src="libs/virtualjoystick.js"></script>
+<script src="libs/raphael.min.js"></script>
 <script src="rcbrowser.js"></script>
+<script src="radar.js"></script>
   </head>
 
   <body>
@@ -40,8 +42,11 @@
 	       <input type="range" id="wheel_R0" min="-100" max="100" defaultValue="0">
         </div>	
         <input type="button" id="bt_stop" value="stop" onclick="on_stop()" />            
-      </div>
-      </div>	  
+      </div>      
+      <div id="ultrasonic">    
+       ultrasonic
+      </div>      
+    </div>	  
   </body>
 </html>
 

@@ -132,4 +132,5 @@ function init(){
 		dX=tX;
 		dY=tY;
 	});
+	radar("ultrasonic");
   }
