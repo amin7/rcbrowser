@@ -2,18 +2,9 @@
   <head>
 
   <title>rc control</title>
-  <!-- 
-  %%PLUGIN_CSS%%
--->
-<style type="text/css">
-  body { background-color: #ddd; }
-  #container { height: 100%; width: 100%; display: table; }  
- #humm_div,#temper_div,#temper_ext_div,#humm_ext_div,#temper_balcon_div{ 
-  	display: inline-block;
-  	margin: 0 auto;
- }
+
+    <link rel="stylesheet" href="css/rcbrowser.css" />
         
-</style>
   <script src="libs/jquery-2.1.1.js"></script>
   <script src="libs/jquery.mobile.custom.js"></script>
 <script src="libs/virtualjoystick.js"></script>
@@ -22,11 +13,35 @@
 
   <body>
   <body onload="init()">
-    <img src="http://192.168.43.199:8081" />     
-    <div id="container">      
-      temerature<br/>
-      <canvas id="stage" width="320" height="240"></canvas>
-	  </div>
+  <div id="main">          
+    <div id="fpv">      
+        <img src="http://192.168.43.199:8081" />
+      
+	 </div>
+    <div id="chasis_move">     
+        rotation<br/>
+        <div id="chasis_move_eagle_fixed">
+	     <input type="button" value="<<180" onclick="update_rotate(-180)" />
+	     <input type="button" value="<90"  onclick="update_rotate(-90)"/>
+	     <input type="button" value=">90"  onclick="update_rotate(90)"/>
+	     <input type="button" value=">>180"  onclick="update_rotate(180)"/>
+	    </div>
+	    <input type="range" id="rotation" min="-100" max="100"  defaultValue="0"/>
+	    <hr>
+	    chasis_move<br/>
+        <input type="range" id="steering_wheel" min="0" max="100" defaultValue="50"/>
+        <div id="wheels-wrapper">
+	       <input type="range" id="wheel_L1" min="-100" max="100" defaultValue="0">
+	       <input type="range" id="wheel_L0" min="-100" max="100" defaultValue="0">
+	       <input type="range" id="diff_L" min="0" max="100" defaultValue="0">
+	       <input type="range" id="power" min="-400" max="400" defaultValue="0">
+	       <input type="range" id="diff_R" min="0" max="100" defaultValue="0">
+	       <input type="range" id="wheel_R1" min="-100" max="100" defaultValue="0">
+	       <input type="range" id="wheel_R0" min="-100" max="100" defaultValue="0">
+        </div>	
+        <input type="button" id="bt_stop" value="stop" onclick="on_stop()" />            
+      </div>
+      </div>	  
   </body>
 </html>
 

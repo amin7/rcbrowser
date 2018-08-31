@@ -1,0 +1,48 @@
+html, body {
+	height: 100%;
+}
+body {
+	width: 100%;
+	margin: 0;	
+	text-align: center;
+	
+}
+#main {
+	padding: 32px;
+	width: 100%;
+	display: table;
+	margin: 5;		
+}
+
+  #fpv { 
+  float:left;      
+  text-align: center;
+  width: 640px; 
+  height: 480px;
+  border: 1px solid black;
+  margin: 5;
+  }
+  #chasis_move {
+    float: left; 
+    width: 232;
+	border: 1px solid black;
+	margin: 5;	 
+  }
+  #steering_wheel,#diff_L,#diff_R,#power,#rotation{ 
+  width: 95%;
+  height: 40px;  
+  }
+
+#wheels-wrapper{
+
+  display: table;
+  width: 230px;
+  height: 230px;  
+  transform: rotate(-90deg);
+  //transform-origin: 0px 0px;
+}
+#wheel_L0,#wheel_L1,#wheel_R0,#wheel_R1 {
+  width: 45%;
+  height: 40px;  
+  }
+  
