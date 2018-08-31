@@ -69,11 +69,22 @@ function range_wheels_xx_on_input(){
 			range_wheel_R0.value,range_wheel_R1.value);
 }
 function set_wheels(l0,l1,r0,r1){
-	console.log('range_wheel_L0:1='+l0+':'+l1+ ' R0:1='+r0+':'+r1);	
+	console.log('set_wheels');	
+	var obj = new Object();
+    obj.wheel_L0=Number(l0);
+    obj.wheel_L1=Number(l1);
+    obj.wheel_R0=Number(r0);
+    obj.wheel_R1=Number(r1);
+    var data = JSON.stringify(obj);
+    xmlHttp.open('PUT','wheels',true);
+    xmlHttp.setRequestHeader("Content-type", "application/json");
+    xmlHttp.send(data);
+    console.log(data);
 }
 
 function init(){
 	console.log('started');
+	console.log('location.hostname='+document.location.hostname+' port='+document.location.port  );
 	range_rotation=document.getElementById('rotation');
 	range_wheel_L0=document.getElementById('wheel_L0');
 	range_wheel_L1=document.getElementById('wheel_L1');
@@ -112,7 +123,7 @@ function init(){
               obj.deltaX=tX;
               obj.deltaY=tY;
               var data = JSON.stringify(obj);
-    	      xmlHttp.open('PUT','joystick',true);
+    	      xmlHttp.open('PUT','camera',true);
     	      xmlHttp.setRequestHeader("Content-type", "application/json");
     	      xmlHttp.send(data);
     	      console.log(data);

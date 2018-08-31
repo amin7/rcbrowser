@@ -37,8 +37,9 @@ void print(mg_str str) {
   std::cout << std::endl;
 }
 
-static void handle_direction(struct mg_connection *nc, struct http_message *hm) {
-  std::cout << "handle_direction" << std::endl;
+static void handle_camera(struct mg_connection *nc, struct http_message *hm) {
+  std::cout << "handle_camera"
+      "" << std::endl;
   n++;
 #ifndef _SIMULATION_
   pinMode(0, LOW);
@@ -61,7 +62,35 @@ static void handle_direction(struct mg_connection *nc, struct http_message *hm) 
   mg_send_response_line(nc, 200, "");
   nc->flags |= MG_F_SEND_AND_CLOSE;
   //mg_send(nc, "", 0);
+}
 
+static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {
+  std::cout << "handle_wheels" << std::endl;
+  n++;
+#ifndef _SIMULATION_
+  pinMode(0, LOW);
+#endif
+  print(hm->body);
+  std::string json;
+  json.append(hm->body.p, hm->body.len);
+  std::cout << "json" << json << std::endl;
+  rapidjson::Document d;
+  d.Parse(json.c_str());
+  std::cout << "DOM";
+  std::cout << "wheel_L=" << d["wheel_L0"].GetInt() << ":" << d["wheel_L1"].GetInt();
+  std::cout << "wheel_R=" << d["wheel_R0"].GetInt() << ":" << d["wheel_R1"].GetInt();
+  std::cout << std::endl;
+
+//  /* Send headers */
+//  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+//
+//  /* Compute the result and send it back as a JSON object */
+//  auto result = 0;
+//  mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
+//  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+  mg_send_response_line(nc, 200, "");
+  nc->flags |= MG_F_SEND_AND_CLOSE;
+  //mg_send(nc, "", 0);
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -73,8 +102,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     if (mg_vcmp(&hm->uri, "/") == 0) {
       mg_http_serve_file(nc, hm, "./frontend/rcbrowser.html", mg_mk_str("text/html"), mg_mk_str(""));
     } else {
-      if (mg_vcmp(&hm->uri, "/joystick") == 0) {
-        handle_direction(nc, hm); /* Handle RESTful call */
+      if (mg_vcmp(&hm->uri, "/camera") == 0) {
+        handle_camera(nc, hm); /* Handle RESTful call */
+      }
+      if (mg_vcmp(&hm->uri, "/wheels") == 0) {
+        handle_wheels(nc, hm); /* Handle RESTful call */
       } else if (mg_vcmp(&hm->uri, "/printcontent") == 0) {
         char buf[100] = {0};
         memcpy(buf, hm->body.p,
