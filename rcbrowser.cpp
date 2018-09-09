@@ -13,6 +13,7 @@
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #ifndef _SIMULATION_
 #include <wiringPi.h>
+#include "pca9685.h"
 #endif
 
 static const char *s_http_port = "8000";

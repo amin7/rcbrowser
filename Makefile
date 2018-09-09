@@ -7,8 +7,11 @@ SOURCES = rcbrowser.cpp\
 CFLAGS = -g -W -Wall -I$(MONGOOSE_DIR) -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)  -std=c++11
 CFLAGS += -pthread
 CFLAGS += -I../rapidjson/include/
-CFLAGS +=  -D _SIMULATION_
+CFLAGS += -I../pca9685/src
 
+#CFLAGS +=  -D _SIMULATION_
+CFLAGS +=-lwiringPi -lwiringPiDev -lpthread -lm -lwiringPiPca9685
+ 
 OBJ_DIR = ./obj/
 MKDIR_P = mkdir -p
 
