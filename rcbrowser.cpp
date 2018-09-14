@@ -15,10 +15,15 @@
 #include <wiringPi.h>
 #include "pca9685.h"
 #endif
+#include "CDCmotor.h"
+#include "ServoCamera.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 int n = 0;
+CDCmotor motorL0, motorL1;
+CDCmotor motorR0, motorR1;
+ServoCamera servoCamera;
 
 void call_from_thread() {
   std::cout << "thread function" << std::endl;
@@ -53,35 +58,21 @@ static void handle_camera(struct mg_connection *nc, struct http_message *hm) {
   d.Parse(json.c_str());
   std::cout << "DOM" << "deltaX" << d["deltaX"].GetInt() << "deltaY" << d["deltaY"].GetInt() << std::endl;
 
-//  /* Send headers */
-//  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-//
-//  /* Compute the result and send it back as a JSON object */
-//  auto result = 0;
-//  mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
-//  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
   mg_send_response_line(nc, 200, "");
   nc->flags |= MG_F_SEND_AND_CLOSE;
-  //mg_send(nc, "", 0);
+
+  servoCamera.setOffset(d["deltaX"].GetInt(), d["deltaY"].GetInt());
 }
 
 static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "handle_wheels" << std::endl;
   n++;
-#ifndef _SIMULATION_
-  pinMode(0, LOW);
-#endif
   print(hm->body);
   std::string json;
   json.append(hm->body.p, hm->body.len);
   std::cout << "json" << json << std::endl;
   rapidjson::Document d;
   d.Parse(json.c_str());
-  std::cout << "DOM";
-  std::cout << "wheel_L=" << d["wheel_L0"].GetInt() << ":" << d["wheel_L1"].GetInt();
-  std::cout << "wheel_R=" << d["wheel_R0"].GetInt() << ":" << d["wheel_R1"].GetInt();
-  std::cout << std::endl;
-
 //  /* Send headers */
 //  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
 //
@@ -91,7 +82,20 @@ static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {
 //  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
   mg_send_response_line(nc, 200, "");
   nc->flags |= MG_F_SEND_AND_CLOSE;
-  //mg_send(nc, "", 0);
+
+  const int16_t wheel_L0 = d["wheel_L0"].GetInt();
+  const int16_t wheel_L1 = d["wheel_L1"].GetInt();
+  const int16_t wheel_R0 = d["wheel_R0"].GetInt();
+  const int16_t wheel_R1 = d["wheel_R1"].GetInt();
+
+  std::cout << "DOM";
+  std::cout << "wheel_L=" << wheel_L0 << ":" << wheel_L1;
+  std::cout << "wheel_R=" << wheel_R0 << ":" << wheel_R1;
+  std::cout << std::endl;
+  motorL0.set(wheel_L0);
+  motorL1.set(wheel_L1);
+  motorR0.set(wheel_R0);
+  motorR1.set(wheel_R1);
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -125,10 +129,21 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 }
 
 //int main(int argc, char *argv[]) {
+#define PIN_BASE 300
+#define HERTZ 50
+
 int main() {
+  int fd = 0;
 #ifndef _SIMULATION_
   wiringPiSetup();
+  fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
+  pca9685PWMReset(fd);
 #endif
+  motorL0.init(fd, 0, 1);
+  motorL1.init(fd, 2, 3);
+  motorR0.init(fd, 4, 5);
+  motorR1.init(fd, 6, 7);
+
   std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
   std::thread t1(call_from_thread);
   struct mg_mgr mgr;
@@ -136,7 +151,6 @@ int main() {
   struct mg_bind_opts bind_opts;
 
   const char *err_str;
-
   mg_mgr_init(&mgr, NULL);
   s_http_server_opts.document_root = "./frontend/";
   //s_http_server_opts.url_rewrites = NULL;

@@ -20,3 +20,4 @@ https://www.instructables.com/id/Raspberry-Pi-Video-Streaming/
 [pin]
 http://wiringpi.com
 git clone https://github.com/Reinbert/pca9685.git
+sudo make install

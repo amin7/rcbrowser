@@ -110,6 +110,7 @@ function init(){
 	var joystick	= new VirtualJoystick({
 		container	: document.getElementById('fpv'),
 		mouseSupport	: true,
+		limitStickTravel:true
 	});
 	let dX;
 	let dY;
