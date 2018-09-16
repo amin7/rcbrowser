@@ -82,6 +82,31 @@ function set_wheels(l0,l1,r0,r1){
     console.log(data);
 }
 
+function cameraJoystickSend(dx,dy){
+    if(xmlHttp.readyState==0||xmlHttp.readyState==4){
+	  var obj = new Object();
+	obj.deltaX=dx;
+	obj.deltaY=dy;
+	var data = JSON.stringify(obj);
+	  xmlHttp.open('PUT','camera',true);
+	  xmlHttp.setRequestHeader("Content-type", "application/json");
+	  xmlHttp.send(data);
+	  console.log(data);
+    }	
+}
+let dX=0;
+let dY=0;
+let container_;
+var joystick;
+function cameraJoystickDelta(){
+	let tX=parseInt(joystick.deltaX()/10);
+	let tY=parseInt(joystick.deltaY()/10);
+	if(tX!=dX || tY!=dY ){          
+		cameraJoystickSend(dX-tX,dY-tY)
+	}
+	dX=tX;
+	dY=tY;
+}
 function init(){
 	console.log('started');
 	console.log('location.hostname='+document.location.hostname+' port='+document.location.port  );
@@ -105,33 +130,15 @@ function init(){
 	range_wheel_R0.addEventListener("input", range_wheels_xx_on_input);
 	range_wheel_R1.addEventListener("input", range_wheels_xx_on_input);
 	
-	
-	var container_=document.getElementById('fpv');
-	var joystick	= new VirtualJoystick({
+
+	 joystick	= new VirtualJoystick({
 		container	: document.getElementById('fpv'),
-		mouseSupport	: true,
-		limitStickTravel:true
+		mouseSupport	: true
 	});
-	let dX;
-	let dY;
-	
-	container_.addEventListener('mousemove', function(){
-		let tX=joystick.deltaX();
-		let tY=joystick.deltaY();
-		if(tX!=dX || tY!=dY){          
-          if(xmlHttp.readyState==0||xmlHttp.readyState==4){
-        	  var obj = new Object();
-              obj.deltaX=tX;
-              obj.deltaY=tY;
-              var data = JSON.stringify(obj);
-    	      xmlHttp.open('PUT','camera',true);
-    	      xmlHttp.setRequestHeader("Content-type", "application/json");
-    	      xmlHttp.send(data);
-    	      console.log(data);
-          }			
-		}
-		dX=tX;
-		dY=tY;
-	});
+
+
+	let container_=document.getElementById('fpv');
+	['mousemove','touchmove'].forEach(function(e){
+		container_.addEventListener(e,function(){cameraJoystickDelta();} )});
 	radar("ultrasonic");
   }

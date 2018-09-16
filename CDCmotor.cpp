@@ -36,12 +36,12 @@ void CDCmotor::set(int16_t power) {
     powerPin = pin0;
     power = -power;
   }
-  if (100 > power) {
+  if (100 < power) {
     power = 100;
   }
   power = power * maxPWM / 100;
 #ifndef _SIMULATION_
-  pca9685PWMWrite(fd, zeroPin, 0, 0);
-  pca9685PWMWrite(fd, powerPin, 0, power);
+  pwmWrite(300+ zeroPin,  0);
+  pwmWrite(300+ powerPin, power);
 #endif
 }

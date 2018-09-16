@@ -20,7 +20,6 @@
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
-int n = 0;
 CDCmotor motorL0, motorL1;
 CDCmotor motorR0, motorR1;
 ServoCamera servoCamera;
@@ -29,7 +28,6 @@ void call_from_thread() {
   std::cout << "thread function" << std::endl;
   while (1) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    std::cout << "n=" << n << std::endl;
   }
 }
 
@@ -46,7 +44,6 @@ void print(mg_str str) {
 static void handle_camera(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "handle_camera"
       "" << std::endl;
-  n++;
 #ifndef _SIMULATION_
   pinMode(0, LOW);
 #endif
@@ -56,17 +53,18 @@ static void handle_camera(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "json" << json << std::endl;
   rapidjson::Document d;
   d.Parse(json.c_str());
-  std::cout << "DOM" << "deltaX" << d["deltaX"].GetInt() << "deltaY" << d["deltaY"].GetInt() << std::endl;
+  const int16_t deltaX=d["deltaX"].GetInt();
+  const int16_t deltaY=d["deltaY"].GetInt();
+  std::cout << "DOM" << "deltaX" << deltaX << "deltaY" <<deltaY << std::endl;
 
   mg_send_response_line(nc, 200, "");
   nc->flags |= MG_F_SEND_AND_CLOSE;
 
-  servoCamera.setOffset(d["deltaX"].GetInt(), d["deltaY"].GetInt());
+  servoCamera.setOffset(deltaX, deltaY);
 }
 
 static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "handle_wheels" << std::endl;
-  n++;
   print(hm->body);
   std::string json;
   json.append(hm->body.p, hm->body.len);
@@ -80,13 +78,13 @@ static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {
 //  auto result = 0;
 //  mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
 //  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
-  mg_send_response_line(nc, 200, "");
-  nc->flags |= MG_F_SEND_AND_CLOSE;
-
   const int16_t wheel_L0 = d["wheel_L0"].GetInt();
   const int16_t wheel_L1 = d["wheel_L1"].GetInt();
   const int16_t wheel_R0 = d["wheel_R0"].GetInt();
   const int16_t wheel_R1 = d["wheel_R1"].GetInt();
+  mg_send_response_line(nc, 200, "");
+  nc->flags |= MG_F_SEND_AND_CLOSE;
+
 
   std::cout << "DOM";
   std::cout << "wheel_L=" << wheel_L0 << ":" << wheel_L1;
@@ -116,7 +114,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         char buf[100] = {0};
         memcpy(buf, hm->body.p,
                sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
-        printf("%s\n", buf);
       } else {
         mg_serve_http(nc, hm, s_http_server_opts); /* Serve static content */
       }
@@ -143,6 +140,7 @@ int main() {
   motorL1.init(fd, 2, 3);
   motorR0.init(fd, 4, 5);
   motorR1.init(fd, 6, 7);
+  servoCamera.init(fd, 14, 15);
 
   std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
   std::thread t1(call_from_thread);
