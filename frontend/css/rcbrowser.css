@@ -14,30 +14,48 @@ body {
 	margin: 5;		
 }
 
-  #fpv { 
-  float:left;      
+#Camera {
+  float:left;
   text-align: center;
-  width: 640px; 
-  height: 480px;
+  width: 700px; 
+  height: 520px;
   border: 1px solid black;
-  margin: 5;
+  margin: 5;  
+  }
+#fpv {	
+  width:640px;
+  height: 480px;
+  }
+  #cameraX{        
+  position: absolute;
+    width: 640px;     
+    left:45px;    
+    top: 520px;    
+  }
+  #cameraY{   
+  float:left  ; 
+  
+	  transform: rotate(-90deg);
+	  transform-origin: 320px -320px;
+	  width:480px;	  
+	
   }
   #chasis_move {
     float: left; 
-    width: 232;
+    width: 400;
 	border: 1px solid black;
 	margin: 5;	 
   }
   #steering_wheel,#diff_L,#diff_R,#power,#rotation{ 
   width: 95%;
-  height: 40px;  
+  height: 90px;  
   }
 
 #wheels-wrapper{
 
   display: table;
-  width: 230px;
-  height: 230px;  
+  width: 400px;
+  height: 400px;  
   transform: rotate(-90deg);
   //transform-origin: 0px 0px;
 }

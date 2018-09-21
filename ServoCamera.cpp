@@ -63,7 +63,3 @@ void ServoCamera::setOffset(int _valX, int _valY) {
   set(valX , valY);
 }
 
-void ServoCamera::serveOffset(int _valX, int _valY) {
-  _DMSG("_valX="<<fd<<",_valY="<<_valY);
-  serve(valX + _valX, valY + _valY);
-}

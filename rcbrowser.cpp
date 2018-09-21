@@ -53,14 +53,14 @@ static void handle_camera(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "json" << json << std::endl;
   rapidjson::Document d;
   d.Parse(json.c_str());
-  const int16_t deltaX=d["deltaX"].GetInt();
-  const int16_t deltaY=d["deltaY"].GetInt();
-  std::cout << "DOM" << "deltaX" << deltaX << "deltaY" <<deltaY << std::endl;
+  const int16_t X = d["X"].GetInt();
+  const int16_t Y = d["Y"].GetInt();
+  std::cout << "DOM" << "X" << deltaX << "Y" << deltaY << std::endl;
 
   mg_send_response_line(nc, 200, "");
   nc->flags |= MG_F_SEND_AND_CLOSE;
 
-  servoCamera.setOffset(deltaX, deltaY);
+  servoCamera.set(X, Y);
 }
 
 static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {

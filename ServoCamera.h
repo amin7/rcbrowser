@@ -23,7 +23,6 @@ public:
   void init(int _fd, int _pinX, int _pinY, int _valX = 50, int _valY = 50);
   void set(int _valX, int _valY);
   void setOffset(int _valX, int _valY);
-  void serveOffset(int _valX, int _valY);
   void serve(int _valX, int _valY);
   static int calcTicks(float impulseMs, int hertz);
 };

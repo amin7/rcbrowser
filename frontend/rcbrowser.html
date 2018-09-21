@@ -15,11 +15,15 @@
 
   <body>
   <body onload="init()">
-  <div id="main">          
-    <div id="fpv">      
-
+  <div id="main">
+    <div id="camera">          
+        <div id="fpv">      
+<!-- 
         <img src="http://192.168.1.11:8080/stream/video.mjpeg" alt="image" width="425" height="344"  />
-	 
+         -->
+         </div>
+           <input type="range" id="cameraY" min="0" max="100" defaultValue="0">
+	       <input type="range" id="cameraX" min="0" max="100" defaultValue="50">
 	 </div>
     <div id="chasis_move">     
         rotation<br/>

@@ -82,30 +82,34 @@ function set_wheels(l0,l1,r0,r1){
     console.log(data);
 }
 
-function cameraJoystickSend(dx,dy){
+var cameraX;
+var cameraY;
+
+function cameraSendPosition(x,y){
     if(xmlHttp.readyState==0||xmlHttp.readyState==4){
 	  var obj = new Object();
-	obj.deltaX=dx;
-	obj.deltaY=dy;
-	var data = JSON.stringify(obj);
-	  xmlHttp.open('PUT','camera',true);
-	  xmlHttp.setRequestHeader("Content-type", "application/json");
-	  xmlHttp.send(data);
+	  obj.X=x;
+	  obj.Y=y;
+	  var data = JSON.stringify(obj);
+//	  xmlHttp.open('PUT','camera',true);
+//	  xmlHttp.setRequestHeader("Content-type", "application/json");
+//	  xmlHttp.send(data);
 	  console.log(data);
     }	
 }
-let dX=0;
-let dY=0;
-let container_;
+
 var joystick;
+var cameraUpdateInterval;
 function cameraJoystickDelta(){
-	let tX=parseInt(joystick.deltaX()/10);
-	let tY=parseInt(joystick.deltaY()/10);
-	if(tX!=dX || tY!=dY ){          
-		cameraJoystickSend(dX-tX,dY-tY)
+	clearInterval(cameraUpdateInterval);
+	var deltaX=parseInt(joystick.deltaX());
+	var deltaY=parseInt(joystick.deltaY());
+	if(0==deltaX && 0==deltaY){
+		return;
 	}
-	dX=tX;
-	dY=tY;
+	var rate=Math.sqrt(deltaX*deltaX+deltaY*deltaY);	
+	console.log("rate="+rate);
+	cameraX.value=rate;
 }
 function init(){
 	console.log('started');
@@ -130,9 +134,12 @@ function init(){
 	range_wheel_R0.addEventListener("input", range_wheels_xx_on_input);
 	range_wheel_R1.addEventListener("input", range_wheels_xx_on_input);
 	
+	cameraY=document.getElementById('cameraY');
+	cameraX=document.getElementById('cameraX');
 
 	 joystick	= new VirtualJoystick({
 		container	: document.getElementById('fpv'),
+		limitStickTravel: true,
 		mouseSupport	: true
 	});
 
@@ -140,5 +147,8 @@ function init(){
 	let container_=document.getElementById('fpv');
 	['mousemove','touchmove'].forEach(function(e){
 		container_.addEventListener(e,function(){cameraJoystickDelta();} )});
+	
+	cameraX.addEventListener("input",function(){cameraSendPosition(cameraX.value,cameraY.value);})
+	cameraY.addEventListener("input",function(){cameraSendPosition(cameraX.value,cameraY.value);})
 	radar("ultrasonic");
   }
