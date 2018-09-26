@@ -19,7 +19,7 @@
     <div id="camera">          
         <div id="fpv">      
 <!-- 
-        <img src="http://192.168.1.11:8080/stream/video.mjpeg" alt="image" width="425" height="344"  />
+        <img id="fpv_stream" src="http://192.168.1.11:8080/stream/video.mjpeg" alt="image"  />
          -->
          </div>
            <input type="range" id="cameraY" min="0" max="100" defaultValue="0">
@@ -28,10 +28,10 @@
     <div id="chasis_move">     
         rotation<br/>
         <div id="chasis_move_eagle_fixed">
-	     <input type="button" value="<<180" onclick="update_rotate(-180)" />
-	     <input type="button" value="<90"  onclick="update_rotate(-90)"/>
-	     <input type="button" value=">90"  onclick="update_rotate(90)"/>
-	     <input type="button" value=">>180"  onclick="update_rotate(180)"/>
+	     <input type="button" id="bt_eagle_fixed" value="<<180" onclick="update_rotate(-180)" />
+	     <input type="button" id="bt_eagle_fixed" value="<90"  onclick="update_rotate(-90)"/>
+	     <input type="button" id="bt_eagle_fixed" value=">90"  onclick="update_rotate(90)"/>
+	     <input type="button" id="bt_eagle_fixed" value=">>180"  onclick="update_rotate(180)"/>
 	    </div>
 	    <input type="range" id="rotation" min="-100" max="100"  defaultValue="0"/>
 	    <hr>
@@ -49,9 +49,9 @@
         <input type="button" id="bt_stop" value="stop" onclick="on_stop()" />            
       </div>      
       <div id="ultrasonic">    
-       ultrasonic
+       ultrasonic              
       </div>      
-    </div>	  
+    </div>	      
   </body>
 </html>
 

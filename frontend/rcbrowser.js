@@ -125,6 +125,11 @@ function init(){
 	range_power=document.getElementById('power');	
 		
 	range_rotation.addEventListener("input", update_rotation);
+	range_rotation.addEventListener("mouseup", function(){
+		range_rotation.value=0;
+		update_rotation();}
+	);	
+	
 	range_steering_wheel.addEventListener("input", update_move);
 	range_diff_L.addEventListener("input", update_move);
 	range_diff_R.addEventListener("input", update_move);

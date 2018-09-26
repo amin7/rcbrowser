@@ -15,7 +15,8 @@ class CDCmotor {
   int pin1;
 public:
   enum {
-    maxPWM = 0xfff
+    maxPWM = 0xfff,
+    startPWM = (0xfff / 10) // less power not enought to start
   };
   void init(int _fd, int _pin0, int _pin1);
   void set(int16_t power);

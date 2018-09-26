@@ -40,6 +40,10 @@ void CDCmotor::set(int16_t power) {
     power = 100;
   }
   power = power * maxPWM / 100;
+  if (startPWM > power) {
+    _DMSG("less than start " << startPWM);
+    power = 0;
+  }
 #ifndef _SIMULATION_
   pwmWrite(300+ zeroPin,  0);
   pwmWrite(300+ powerPin, power);
