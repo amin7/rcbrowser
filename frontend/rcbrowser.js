@@ -88,12 +88,12 @@ var cameraY;
 function cameraSendPosition(x,y){
     if(xmlHttp.readyState==0||xmlHttp.readyState==4){
 	  var obj = new Object();
-	  obj.X=x;
-	  obj.Y=y;
+	  obj.X=Number(x);
+	  obj.Y=Number(y);
 	  var data = JSON.stringify(obj);
-//	  xmlHttp.open('PUT','camera',true);
-//	  xmlHttp.setRequestHeader("Content-type", "application/json");
-//	  xmlHttp.send(data);
+	  xmlHttp.open('PUT','camera',true);
+	  xmlHttp.setRequestHeader("Content-type", "application/json");
+	  xmlHttp.send(data);
 	  console.log(data);
     }	
 }

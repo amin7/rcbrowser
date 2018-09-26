@@ -55,7 +55,7 @@ static void handle_camera(struct mg_connection *nc, struct http_message *hm) {
   d.Parse(json.c_str());
   const int16_t X = d["X"].GetInt();
   const int16_t Y = d["Y"].GetInt();
-  std::cout << "DOM" << "X" << deltaX << "Y" << deltaY << std::endl;
+  std::cout << "DOM" << "X" << X << "Y" << Y << std::endl;
 
   mg_send_response_line(nc, 200, "");
   nc->flags |= MG_F_SEND_AND_CLOSE;
