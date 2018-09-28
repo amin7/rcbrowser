@@ -68,6 +68,7 @@ function range_wheels_xx_on_input(){
 	set_wheels(range_wheel_L0.value,range_wheel_L1.value,
 			range_wheel_R0.value,range_wheel_R1.value);
 }
+
 function set_wheels(l0,l1,r0,r1){
 	console.log('set_wheels');	
 	var obj = new Object();
@@ -100,16 +101,13 @@ function cameraSendPosition(x,y){
 
 var joystick;
 var cameraUpdateInterval;
-function cameraJoystickDelta(){
-	clearInterval(cameraUpdateInterval);
+
+function cameraJoystickDelta(){	
 	var deltaX=parseInt(joystick.deltaX());
 	var deltaY=parseInt(joystick.deltaY());
-	if(0==deltaX && 0==deltaY){
-		return;
-	}
-	var rate=Math.sqrt(deltaX*deltaX+deltaY*deltaY);	
-	console.log("rate="+rate);
-	cameraX.value=rate;
+	cameraX.value=parseFloat(cameraX.value)+deltaX/20;
+	cameraY.value=parseFloat(cameraY.value)-deltaY/20;
+	console.log('camera '+cameraX.value+":"+cameraY.value);
 }
 function init(){
 	console.log('started');
@@ -147,11 +145,26 @@ function init(){
 		limitStickTravel: true,
 		mouseSupport	: true
 	});
-
+	joystick.addEventListener('startValidation', function(x){
+		console.log('validataion '+x);
+		//var touch	= event.changedTouches[0];
+		if( x < 100 )	return false;
+		return true
+	});
 
 	let container_=document.getElementById('fpv');
-	['mousemove','touchmove'].forEach(function(e){
-		container_.addEventListener(e,function(){cameraJoystickDelta();} )});
+		joystick.addEventListener("start",function(){
+			clearInterval(cameraUpdateInterval);
+			cameraJoystickDelta();
+			cameraUpdateInterval=setInterval(function(){
+				cameraJoystickDelta()
+			}, 100);
+			} );
+	
+		joystick.addEventListener("end",function(){
+			clearInterval(cameraUpdateInterval);
+			console.log("cameraUpdate clearInterval");
+		} );
 	
 	cameraX.addEventListener("input",function(){cameraSendPosition(cameraX.value,cameraY.value);})
 	cameraY.addEventListener("input",function(){cameraSendPosition(cameraX.value,cameraY.value);})

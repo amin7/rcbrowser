@@ -191,6 +191,7 @@ VirtualJoystick.prototype._onDown	= function(x, y)
 VirtualJoystick.prototype._onMove	= function(x, y)
 {
 	if( this._pressed === true ){
+		this.dispatchEvent('move');
 		this._stickX	= x;
 		this._stickY	= y;
 		
@@ -218,14 +219,18 @@ VirtualJoystick.prototype._onMove	= function(x, y)
 
 VirtualJoystick.prototype._onMouseUp	= function(event)
 {
+	this.dispatchEvent('end');
 	return this._onUp();
 }
 
 VirtualJoystick.prototype._onMouseDown	= function(event)
 {
-	event.preventDefault();
+	event.preventDefault();	
 	var x	= event.clientX;
-	var y	= event.clientY;
+	var y	= event.clientY;		
+	var isValid	= this.dispatchEvent('startValidation', event.offsetX);
+	if( isValid === false )	return;
+	this.dispatchEvent('start');
 	return this._onDown(x, y);
 }
 
@@ -245,8 +250,8 @@ VirtualJoystick.prototype._onTouchStart	= function(event)
 	// if there is already a touch inprogress do nothing
 	if( this._touchIdx !== null )	return;
 
-	// notify event for validation
-	var isValid	= this.dispatchEvent('touchStartValidation', event);
+	// notify event for validation	
+	var isValid	= this.dispatchEvent('startValidation', event);
 	if( isValid === false )	return;
 	
 	// dispatch touchStart
