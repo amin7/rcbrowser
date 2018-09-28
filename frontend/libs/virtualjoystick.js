@@ -251,11 +251,11 @@ VirtualJoystick.prototype._onTouchStart	= function(event)
 	if( this._touchIdx !== null )	return;
 
 	// notify event for validation	
-	var isValid	= this.dispatchEvent('startValidation', event);
+	var isValid	= this.dispatchEvent('startValidation', event.changedTouches[0].pageX);
 	if( isValid === false )	return;
 	
 	// dispatch touchStart
-	this.dispatchEvent('touchStart', event);
+	this.dispatchEvent('start', event);
 
 	event.preventDefault();
 	// get the first who changed
@@ -275,7 +275,7 @@ VirtualJoystick.prototype._onTouchEnd	= function(event)
 	if( this._touchIdx === null )	return;
 
 	// dispatch touchEnd
-	this.dispatchEvent('touchEnd', event);
+	this.dispatchEvent('end', event);
 
 	// try to find our touch event
 	var touchList	= event.changedTouches;

@@ -73,10 +73,11 @@ function init_driver(){
 		//console.log("move "+deltaX+":"+deltaY );
 		var l=minmax((deltaY+deltaX),-100,100);
 		var r=minmax((deltaY-deltaX),-100,100);
-		if(deltaY>0)
-			console.log("power "+l+ ":" +r);
-		else
-			console.log("power "+r+ ":" +l);
+		if(deltaY>0){
+			set_wheels(l,l,r,r);
+		}else{
+			set_wheels(l,l,r,r);
+		}
 	});
 
 	jChasis.addEventListener("end",function(){		
