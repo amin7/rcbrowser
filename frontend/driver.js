@@ -10,18 +10,27 @@ function createXmlHttpObject(){
   }
 
 ;
-function on_chasis_stop(){
-	console.log('on_stop');
-	set_wheels(0,0,0,0);
+
+function minmax(veriable,min,max){
+	if(veriable<min){
+		return min;
+	}
+	if(veriable>max){
+		return max;
+	}
+	return veriable;
 }
 
-function set_wheels(l0,l1,r0,r1){
-	console.log('set_wheels');	
+function on_chasis_stop(){
+	console.log('on_stop');
+	set_wheels(0,0);
+}
+
+function set_wheels(l,r){
+	console.log('set_wheels l:r='+l+':'+r);	
 	var obj = new Object();
-    obj.wheel_L0=Number(l0);
-    obj.wheel_L1=Number(l1);
-    obj.wheel_R0=Number(r0);
-    obj.wheel_R1=Number(r1);
+	obj.wheel_L1=obj.wheel_L0=Number(l);    
+	obj.wheel_R1=obj.wheel_R0=Number(r);    
     var data = JSON.stringify(obj);
     xmlHttp.open('PUT','wheels',true);
     xmlHttp.setRequestHeader("Content-type", "application/json");
@@ -29,31 +38,22 @@ function set_wheels(l0,l1,r0,r1){
     console.log(data);
 }
 
-
-function update_move(){
-	console.log('update_move'
-			+'steering_wheel='+range_steering_wheel.value
-			+' power='+range_power.value
-			+' diff L:R='+range_diff_L.value+':'+range_diff_R.value			
-	);	
-	var PL=range_power.value*range_steering_wheel.value/100
-	var PR=range_power.value-PL;
-	
-	var PL0=PL*range_diff_L.value/100;	
-	var PR0=PR*range_diff_R.value/100;
-	range_wheel_L0.value=PL0;
-	range_wheel_L1.value=PL-PL0;
-	range_wheel_R0.value=PR0;
-	range_wheel_R1.value=PR-PR0;
-	
-	range_wheels_xx_on_input();
+function set_chasiscamera(y){
+	console.log('set_chasiscamera y='+y);	
+	var obj = new Object();
+	obj.Y=Number(y);    
+    var data = JSON.stringify(obj);
+    xmlHttp.open('PUT','chasiscamera',true);
+    xmlHttp.setRequestHeader("Content-type", "application/json");
+    xmlHttp.send(data);
+    console.log(data);	
 }
+
 function init_driver(){
 	let container_=document.getElementById('camera');
 	console.log('started init_driver');
 	console.log('location.hostname='+document.location.hostname+' port='+document.location.port  );
 	
-	init_camera(container_)
 	
 	var jChasis	= new VirtualJoystick({
 		container	: container_,
@@ -69,19 +69,41 @@ function init_driver(){
 
 	jChasis.addEventListener("move",function(){
 		var deltaX=parseInt(jChasis.deltaX());
-		var deltaY=-parseInt(jChasis.deltaY());
-		//console.log("move "+deltaX+":"+deltaY );
-		var l=minmax((deltaY+deltaX),-100,100);
-		var r=minmax((deltaY-deltaX),-100,100);
-		if(deltaY>0)
-			console.log("power "+l+ ":" +r);
-		else
-			console.log("power "+r+ ":" +l);
+		var deltaY=-parseInt(jChasis.deltaY());		//
+		var l=minmax((deltaY+deltaX),-jChasis._stickRadius,jChasis._stickRadius);
+		var r=minmax((deltaY-deltaX),-jChasis._stickRadius,jChasis._stickRadius);
+		if(deltaY>0){			
+			set_wheels(l,r);
+		}else{			
+			set_wheels(l,r);
+		}
 	});
 
 	jChasis.addEventListener("end",function(){		
 		on_chasis_stop();
 	} );	
 	
+	var slider = new Slider("#camera_cY",{});
+	let _camera_cY1=document.getElementById('camera_cY1');
+	slider.on("slideStart",function(){		
+		_camera_cY1.style.opacity=1;
+		});
+	slider.on("slideStop",function(){		
+		_camera_cY1.style.opacity=0.2;
+	});
+	slider.on("change",function(event){
+		set_chasiscamera(event.newValue);		
+	});	
+	
 	//radar("ultrasonic");
-  }
+	
+	}
+
+function myFunction() {    
+    var x = document.getElementById("rotation");
+    if (x.style.display === "block") {
+    	x.style.display = "none";
+    } else {
+    	x.style.display = "block";        
+    }
+}

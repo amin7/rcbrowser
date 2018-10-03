@@ -16,13 +16,15 @@
 #include "pca9685.h"
 #endif
 #include "CDCmotor.h"
-#include "ServoCamera.h"
+#include "pca9685Servo.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 CDCmotor motorL0, motorL1;
 CDCmotor motorR0, motorR1;
-ServoCamera servoCamera;
+
+const auto pin_chasis_cameraY = 15;
+pca9685_Servo chasis_camer(pin_chasis_cameraY);
 
 void call_from_thread() {
   std::cout << "thread function" << std::endl;
@@ -41,27 +43,31 @@ void print(mg_str str) {
   std::cout << std::endl;
 }
 
-static void handle_camera(struct mg_connection *nc, struct http_message *hm) {
-  std::cout << "handle_camera"
-      "" << std::endl;
-#ifndef _SIMULATION_
-  pinMode(0, LOW);
-#endif
+static void handle_chasiscamera(struct mg_connection *nc, struct http_message *hm) {
+  std::cout << "handle_chasiscamera" << std::endl;
   print(hm->body);
   std::string json;
   json.append(hm->body.p, hm->body.len);
   std::cout << "json" << json << std::endl;
+  try {
   rapidjson::Document d;
   d.Parse(json.c_str());
-  const int16_t X = d["X"].GetInt();
+
+
   const int16_t Y = d["Y"].GetInt();
-  std::cout << "DOM" << "X" << X << "Y" << Y << std::endl;
+  std::cout << "DOM" << "Y" << Y << std::endl;
+
+
 
   mg_send_response_line(nc, 200, "");
   nc->flags |= MG_F_SEND_AND_CLOSE;
 
-  servoCamera.set(X, Y);
+  chasis_camer.set(Y);
+  } catch (RAPIDJSON_ERROR_CHARTYPE err) {
+  std::cout <<"error" << std::endl;
 }
+}
+
 
 static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "handle_wheels" << std::endl;
@@ -71,13 +77,7 @@ static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {
   std::cout << "json" << json << std::endl;
   rapidjson::Document d;
   d.Parse(json.c_str());
-//  /* Send headers */
-//  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-//
-//  /* Compute the result and send it back as a JSON object */
-//  auto result = 0;
-//  mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
-//  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+
   const int16_t wheel_L0 = d["wheel_L0"].GetInt();
   const int16_t wheel_L1 = d["wheel_L1"].GetInt();
   const int16_t wheel_R0 = d["wheel_R0"].GetInt();
@@ -102,12 +102,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
   switch (ev) {
   case MG_EV_HTTP_REQUEST: {
     print(hm->uri);
-    if (mg_vcmp(&hm->uri, "/") == 0) {
-      mg_http_serve_file(nc, hm, "./frontend/rcbrowser.html", mg_mk_str("text/html"), mg_mk_str(""));
+    if (mg_vcmp(&hm->uri, "/") == 0) { //default page
+      mg_http_serve_file(nc, hm, "./frontend/driver.html", mg_mk_str("text/html"), mg_mk_str(""));
     } else {
-      if (mg_vcmp(&hm->uri, "/camera") == 0) {
-        handle_camera(nc, hm); /* Handle RESTful call */
-      }
+      if (mg_vcmp(&hm->uri, "/chasiscamera") == 0) {
+        handle_chasiscamera(nc, hm); /* Handle RESTful call */
+      } else
       if (mg_vcmp(&hm->uri, "/wheels") == 0) {
         handle_wheels(nc, hm); /* Handle RESTful call */
       } else if (mg_vcmp(&hm->uri, "/printcontent") == 0) {
@@ -140,7 +140,7 @@ int main() {
   motorL1.init(fd, 2, 3);
   motorR0.init(fd, 4, 5);
   motorR1.init(fd, 6, 7);
-  servoCamera.init(fd, 14, 15);
+  chasis_camer.init();
 
   std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
   std::thread t1(call_from_thread);

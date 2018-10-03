@@ -8,8 +8,23 @@ html, body {
     width: 100%;     
    
   }
-#fpv,#fpv_stream {	
+#fpv_stream {	
   width:100%;
-  height: auto;
+  height:100%;
+  object-fit: cover;
+  
   }
+ 
+#camera_control{
+    position: absolute;
+    top:10px;
+    bottom:10px;    
+    left:15px;
+ }
+ 
+#camera_cY1{
+    vertical-align: middle;
+    opacity:0.2;
+    height: 100%;        
+ }
  

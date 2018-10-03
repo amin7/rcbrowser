@@ -21,3 +21,6 @@ https://www.instructables.com/id/Raspberry-Pi-Video-Streaming/
 http://wiringpi.com
 git clone https://github.com/Reinbert/pca9685.git
 sudo make install
+
+[html]
+https://github.com/seiyria/bootstrap-slider
