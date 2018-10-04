@@ -17,6 +17,12 @@
 #endif
 #include "CDCmotor.h"
 #include "pca9685Servo.h"
+#include <map>
+
+
+using namespace std;
+
+typedef bool (*cmd_hander_t)(rapidjson::Document &);
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
@@ -27,7 +33,7 @@ const auto pin_chasis_cameraY = 15;
 pca9685_Servo chasis_camer(pin_chasis_cameraY);
 
 void call_from_thread() {
-  std::cout << "thread function" << std::endl;
+  cout << "thread function" << std::endl;
   while (1) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
@@ -43,50 +49,26 @@ void print(mg_str str) {
   std::cout << std::endl;
 }
 
-static void handle_chasiscamera(struct mg_connection *nc, struct http_message *hm) {
-  std::cout << "handle_chasiscamera" << std::endl;
-  print(hm->body);
-  std::string json;
-  json.append(hm->body.p, hm->body.len);
-  std::cout << "json" << json << std::endl;
+
+static bool handle_chasiscamera(rapidjson::Document &d) {
   try {
-  rapidjson::Document d;
-  d.Parse(json.c_str());
-
-
   const int16_t Y = d["Y"].GetInt();
   std::cout << "DOM" << "Y" << Y << std::endl;
-
-
-
-  mg_send_response_line(nc, 200, "");
-  nc->flags |= MG_F_SEND_AND_CLOSE;
 
   chasis_camer.set(Y);
   } catch (RAPIDJSON_ERROR_CHARTYPE err) {
   std::cout <<"error" << std::endl;
 }
+  return true;
 }
 
 
-static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {
-  std::cout << "handle_wheels" << std::endl;
-  print(hm->body);
-  std::string json;
-  json.append(hm->body.p, hm->body.len);
-  std::cout << "json" << json << std::endl;
-  rapidjson::Document d;
-  d.Parse(json.c_str());
-
+bool handle_wheels(rapidjson::Document &d) {
   const int16_t wheel_L0 = d["wheel_L0"].GetInt();
   const int16_t wheel_L1 = d["wheel_L1"].GetInt();
   const int16_t wheel_R0 = d["wheel_R0"].GetInt();
   const int16_t wheel_R1 = d["wheel_R1"].GetInt();
-  mg_send_response_line(nc, 200, "");
-  nc->flags |= MG_F_SEND_AND_CLOSE;
 
-
-  std::cout << "DOM";
   std::cout << "wheel_L=" << wheel_L0 << ":" << wheel_L1;
   std::cout << "wheel_R=" << wheel_R0 << ":" << wheel_R1;
   std::cout << std::endl;
@@ -94,40 +76,81 @@ static void handle_wheels(struct mg_connection *nc, struct http_message *hm) {
   motorL1.set(wheel_L1);
   motorR0.set(wheel_R0);
   motorR1.set(wheel_R1);
+  return true;
 }
 
+
+map<string, cmd_hander_t> cmd_map = {
+    { "chasiscamera", handle_chasiscamera },
+    { "wheels", handle_wheels }
+};
+enum {
+  http_err_Ok = 200,
+  http_err_BadRequest = 400,
+  http_err_NotFount = 404,
+  http_err_InternallError = 500,
+  
+
+};
+void command_handler(struct mg_connection *nc, struct http_message *hm) {
+  int status_code = http_err_BadRequest;
+  std::cout << "command_handler" << std::endl;
+  do {
+    print(hm->body);
+    std::string json;
+    json.append(hm->body.p, hm->body.len);
+    std::cout << "json=" << json << std::endl;
+    rapidjson::Document d;
+    if (d.Parse(json.c_str()).HasParseError()) {
+      break;
+    }
+    if (!d.HasMember("cmd")) {
+      break;
+    }
+    const char *cmd = d["cmd"].GetString();
+    status_code = http_err_NotFount;
+
+    auto it = cmd_map.find(cmd);
+    if (it != cmd_map.end()) {
+      status_code = http_err_Ok; //ok
+      if (!(*it->second)(d)) {
+        status_code = http_err_InternallError;
+      }
+    }
+  } while (0);
+  mg_send_response_line(nc, status_code, "");
+  nc->flags |= MG_F_SEND_AND_CLOSE;
+
+}
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
   struct http_message *hm = (struct http_message *) ev_data;
 
   switch (ev) {
   case MG_EV_HTTP_REQUEST: {
     print(hm->uri);
-    if (mg_vcmp(&hm->uri, "/") == 0) { //default page
+    if (mg_vcmp(&hm->uri, "/") == 0) {
       mg_http_serve_file(nc, hm, "./frontend/driver.html", mg_mk_str("text/html"), mg_mk_str(""));
+    } else
+    if (mg_vcmp(&hm->uri, "/command") == 0) {
+      command_handler(nc, hm);
     } else {
-      if (mg_vcmp(&hm->uri, "/chasiscamera") == 0) {
-        handle_chasiscamera(nc, hm); /* Handle RESTful call */
-      } else
-      if (mg_vcmp(&hm->uri, "/wheels") == 0) {
-        handle_wheels(nc, hm); /* Handle RESTful call */
-      } else if (mg_vcmp(&hm->uri, "/printcontent") == 0) {
-        char buf[100] = {0};
-        memcpy(buf, hm->body.p,
-               sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
-      } else {
-        mg_serve_http(nc, hm, s_http_server_opts); /* Serve static content */
-      }
+      mg_serve_http(nc, hm, s_http_server_opts); /* Serve static content */
     }
+  }
       break;
     default:
       break;
   }
 }
-}
 
 //int main(int argc, char *argv[]) {
 #define PIN_BASE 300
 #define HERTZ 50
+
+
+void init() {
+
+}
 
 int main() {
   int fd = 0;
@@ -136,6 +159,7 @@ int main() {
   fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
   pca9685PWMReset(fd);
 #endif
+  init();
   motorL0.init(fd, 0, 1);
   motorL1.init(fd, 2, 3);
   motorR0.init(fd, 4, 5);
