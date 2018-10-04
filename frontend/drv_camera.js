@@ -60,8 +60,8 @@ function init_camera(container_){
 	function cameraJoystickDelta(){	
 		var deltaX=parseInt(jCamera.deltaX());
 		var deltaY=parseInt(jCamera.deltaY());	
-		cameraX=minmax(cameraX+deltaX/20,0,100);
-		cameraY=minmax(cameraY+deltaY/20,0,100);
+		cameraX=minmax(cameraX-deltaX/20,0,100);
+		cameraY=minmax(cameraY-deltaY/20,0,100);
 		console.log('camera '+cameraX+":"+cameraY);
 		cameraSendPosition(cameraX,cameraY)
 	}
