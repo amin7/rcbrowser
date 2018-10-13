@@ -18,7 +18,7 @@
 #include "CDCmotor.h"
 #include "pca9685Servo.h"
 #include <map>
-
+#include <unistd.h>
 
 using namespace std;
 
@@ -26,8 +26,8 @@ typedef bool (*cmd_hander_t)(rapidjson::Document &);
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
-CDCmotor motorL0, motorL1;
-CDCmotor motorR0, motorR1;
+CDCmotor motorL0;
+CDCmotor motorR0(true);
 
 const auto pin_chasis_cameraY = 15;
 pca9685_Servo chasis_camer(pin_chasis_cameraY);
@@ -55,7 +55,7 @@ static bool handle_chasiscamera(rapidjson::Document &d) {
   const int16_t Y = d["Y"].GetInt();
   std::cout << "DOM" << "Y" << Y << std::endl;
 
-  chasis_camer.set(Y);
+  chasis_camer.set(Y*65/100);
   } catch (RAPIDJSON_ERROR_CHARTYPE err) {
   std::cout <<"error" << std::endl;
 }
@@ -65,17 +65,12 @@ static bool handle_chasiscamera(rapidjson::Document &d) {
 
 bool handle_wheels(rapidjson::Document &d) {
   const int16_t wheel_L0 = d["wheel_L0"].GetInt();
-  const int16_t wheel_L1 = d["wheel_L1"].GetInt();
   const int16_t wheel_R0 = d["wheel_R0"].GetInt();
-  const int16_t wheel_R1 = d["wheel_R1"].GetInt();
 
-  std::cout << "wheel_L=" << wheel_L0 << ":" << wheel_L1;
-  std::cout << "wheel_R=" << wheel_R0 << ":" << wheel_R1;
-  std::cout << std::endl;
+  cout << "wheel=" << wheel_L0 << ":" << wheel_R0;
+  cout << std::endl;
   motorL0.set(wheel_L0);
-  motorL1.set(wheel_L1);
   motorR0.set(wheel_R0);
-  motorR1.set(wheel_R1);
   return true;
 }
 
@@ -153,6 +148,14 @@ void init() {
 }
 
 int main() {
+  char cwd[PATH_MAX];
+  if (getcwd(cwd, sizeof(cwd)) != NULL) {
+      printf("Current working dir: %s\n", cwd);
+  } else {
+      perror("getcwd() error");
+      return 1;
+  }
+
   int fd = 0;
 #ifndef _SIMULATION_
   wiringPiSetup();
@@ -160,10 +163,8 @@ int main() {
   pca9685PWMReset(fd);
 #endif
   init();
-  motorL0.init(fd, 0, 1);
-  motorL1.init(fd, 2, 3);
-  motorR0.init(fd, 4, 5);
-  motorR1.init(fd, 6, 7);
+  motorR0.init(fd, 0, 1);
+  motorL0.init(fd, 2, 3);
   chasis_camer.init();
 
   std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
@@ -174,7 +175,9 @@ int main() {
 
   const char *err_str;
   mg_mgr_init(&mgr, NULL);
-  s_http_server_opts.document_root = "./frontend/";
+  string front_path=cwd;
+  front_path+="/frontend/";
+  s_http_server_opts.document_root = front_path.c_str();
   //s_http_server_opts.url_rewrites = NULL;
   /* Set HTTP server options */
   memset(&bind_opts, 0, sizeof(bind_opts));

@@ -30,8 +30,8 @@ function set_wheels(l,r){
 	console.log('set_wheels l:r='+l+':'+r);	
 	var obj = new Object();
 	obj.cmd='wheels';
-	obj.wheel_L1=obj.wheel_L0=Number(l);    
-	obj.wheel_R1=obj.wheel_R0=Number(r);    
+	obj.wheel_L0=Number(l);    
+	obj.wheel_R0=Number(r);    
     var data = JSON.stringify(obj);
     xmlHttp.open('PUT','command',true);
     xmlHttp.setRequestHeader("Content-type", "application/json");
@@ -64,10 +64,10 @@ function init_driver(){
 		strokeStyle	: 'cyan'
 	});
 	
-	jChasis.addEventListener('startValidation', function(x){		
-		if( x <= window.innerWidth/2 )	return false;
-		return true
-	});
+//	jChasis.addEventListener('startValidation', function(x){		
+//		if( x <= window.innerWidth/2 )	return false;
+//		return true
+//	});
 
 	jChasis.addEventListener("move",function(){
 		var deltaX=parseInt(jChasis.deltaX());

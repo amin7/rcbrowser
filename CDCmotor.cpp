@@ -6,6 +6,7 @@
  */
 
 #include "CDCmotor.h"
+#include <stdlib.h>
 #ifndef _SIMULATION_
 #include <wiringPi.h>
 #include "pca9685.h"
@@ -31,10 +32,11 @@ void CDCmotor::set(int16_t power) {
 
   auto zeroPin = pin0;
   auto powerPin = pin1;
-  if (0 > power) {
+
+  if ((0 > power)==inversion) {
     zeroPin = pin1;
     powerPin = pin0;
-    power = -power;
+    power = abs(power);
   }
   if (100 < power) {
     power = 100;

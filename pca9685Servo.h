@@ -10,8 +10,8 @@
 #include <stdint.h>
 class pca9685_Servo {
   const uint8_t pin;
-  const int minPulse=maxPWM*1/(1000.0f / 50);
-  const int maxPulse=maxPWM*2/(1000.0f / 50);
+  const int minPulse=0*(50.0f*maxPWM/1000);
+  const int maxPulse=2.5*(50.0f*maxPWM/1000);
   static int calcTicks(float impulseMs, int hertz);
 public:
   enum {
