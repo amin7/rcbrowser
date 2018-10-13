@@ -26,8 +26,8 @@ typedef bool (*cmd_hander_t)(rapidjson::Document &);
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
-CDCmotor motorL0;
-CDCmotor motorR0(true);
+CDCmotor motorL0(true);
+CDCmotor motorR0;
 
 const auto pin_chasis_cameraY = 15;
 pca9685_Servo chasis_camer(pin_chasis_cameraY);

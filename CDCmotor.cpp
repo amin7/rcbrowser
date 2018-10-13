@@ -32,11 +32,13 @@ void CDCmotor::set(int16_t power) {
 
   auto zeroPin = pin0;
   auto powerPin = pin1;
-
-  if ((0 > power)==inversion) {
+  if(inversion){
+      power=-power;
+  }
+  if (0 > power) {
     zeroPin = pin1;
     powerPin = pin0;
-    power = abs(power);
+    power = -power;
   }
   if (100 < power) {
     power = 100;
