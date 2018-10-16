@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <libgen.h>
 #include "CLI11.hpp"
+#include "demonize.h"
 
 using namespace std;
 
@@ -151,9 +152,9 @@ void init() {
 
 int main(int argc, char *argv[]) {
   CLI::App app { "App description" };
-  bool demon_mode;
+  bool is_demon_mode;
   string frontend_path = "";
-  app.add_flag("-d", demon_mode, "demon mode");
+  app.add_flag("-d", is_demon_mode, "demon mode");
   app.add_option("-f", frontend_path, "frontend_path")->check(CLI::ExistingDirectory);
 
   CLI11_PARSE(app, argc, argv);
@@ -165,13 +166,17 @@ int main(int argc, char *argv[]) {
       perror("cant get readlink");
       return 1;
     }
-    const char *path;
     frontend_path = dirname(cwd);
     frontend_path += "/frontend/";
 
   }
-  cout << "demon_mode=" << demon_mode << endl;
+  cout << "is_demon_mode=" << is_demon_mode << endl;
   cout << "frontend_path=" << frontend_path << endl;
+
+//--------------
+  if (is_demon_mode) {
+    daemonize();
+  }
   int fd = 0;
 #ifndef _SIMULATION_
   wiringPiSetup();
