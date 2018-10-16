@@ -19,6 +19,8 @@
 #include "pca9685Servo.h"
 #include <map>
 #include <unistd.h>
+#include <libgen.h>
+#include "CLI11.hpp"
 
 using namespace std;
 
@@ -147,15 +149,29 @@ void init() {
 
 }
 
-int main() {
-  char cwd[PATH_MAX];
-  if (getcwd(cwd, sizeof(cwd)) != NULL) {
-      printf("Current working dir: %s\n", cwd);
-  } else {
-      perror("getcwd() error");
-      return 1;
-  }
+int main(int argc, char *argv[]) {
+  CLI::App app { "App description" };
+  bool demon_mode;
+  string frontend_path = "";
+  app.add_flag("-d", demon_mode, "demon mode");
+  app.add_option("-f", frontend_path, "frontend_path")->check(CLI::ExistingDirectory);
 
+  CLI11_PARSE(app, argc, argv);
+
+  if ("" == frontend_path) { //use current dir
+    char cwd[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", cwd, PATH_MAX);
+    if (-1 == count) {
+      perror("cant get readlink");
+      return 1;
+    }
+    const char *path;
+    frontend_path = dirname(cwd);
+    frontend_path += "/frontend/";
+
+  }
+  cout << "demon_mode=" << demon_mode << endl;
+  cout << "frontend_path=" << frontend_path << endl;
   int fd = 0;
 #ifndef _SIMULATION_
   wiringPiSetup();
@@ -175,9 +191,8 @@ int main() {
 
   const char *err_str;
   mg_mgr_init(&mgr, NULL);
-  string front_path=cwd;
-  front_path+="/frontend/";
-  s_http_server_opts.document_root = front_path.c_str();
+
+  s_http_server_opts.document_root = frontend_path.c_str();
   //s_http_server_opts.url_rewrites = NULL;
   /* Set HTTP server options */
   memset(&bind_opts, 0, sizeof(bind_opts));
