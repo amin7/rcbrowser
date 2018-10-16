@@ -15,7 +15,6 @@
 static void daemonize()
 {
   pid_t pid = 0;
-  int fd;
 
   /* Fork off the parent process */
   pid = fork();

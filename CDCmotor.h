@@ -18,7 +18,7 @@ public:
     startPWM = (0xfff / 10) // less power not enought to start
   };
   CDCmotor(int _pin0, int _pin1) :
-      pin0(_pin0), pin1(pin1) {
+      pin0(_pin0), pin1(_pin1) {
   }
   ;
   void init();
