@@ -10,17 +10,18 @@
 #include <stdint.h>
 
 class CDCmotor {
-  int fd = -1;
-  int pin0;
-  int pin1;
-  const bool inversion;
+  const int pin0;
+  const int pin1;
 public:
   enum {
     maxPWM = 0xfff,
     startPWM = (0xfff / 10) // less power not enought to start
   };
-  CDCmotor(bool _inv=false):inversion(_inv){};
-  void init(int _fd, int _pin0, int _pin1);
+  CDCmotor(int _pin0, int _pin1) :
+      pin0(_pin0), pin1(pin1) {
+  }
+  ;
+  void init();
   void set(int16_t power);
 };
 

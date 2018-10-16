@@ -16,25 +16,16 @@
 #define _DMSG(arg) std::cout << __FILE__ << ":" << __LINE__ << "  DC[" << pin0 << ":"<< pin1<<"] " <<arg<<std::endl
 
 
-void CDCmotor::init(int _fd, int _pin0, int _pin1) {
-  _DMSG("fd="<<_fd);
-  fd = _fd;
-  pin0 = _pin0;
-  pin1 = _pin1;
+void CDCmotor::init() {
+  _DMSG("");
   set(0);
 }
 void CDCmotor::set(int16_t power) {
-  if (-1 == fd) {
-    _DMSG("not inited");
-    return;
-  }
   _DMSG("power=" << power);
 
   auto zeroPin = pin0;
   auto powerPin = pin1;
-  if(inversion){
-      power=-power;
-  }
+
   if (0 > power) {
     zeroPin = pin1;
     powerPin = pin0;

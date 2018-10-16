@@ -27,10 +27,9 @@ using namespace std;
 
 typedef bool (*cmd_hander_t)(rapidjson::Document &);
 
-static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
-CDCmotor motorL0(true);
-CDCmotor motorR0;
+CDCmotor motorL0(3, 2);
+CDCmotor motorR0(0, 1);
 
 const auto pin_chasis_cameraY = 15;
 pca9685_Servo chasis_camer(pin_chasis_cameraY);
@@ -154,8 +153,10 @@ int main(int argc, char *argv[]) {
   CLI::App app { "App description" };
   bool is_demon_mode;
   string frontend_path = "";
+  string http_port = "8000";
   app.add_flag("-d", is_demon_mode, "demon mode");
   app.add_option("-f", frontend_path, "frontend_path")->check(CLI::ExistingDirectory);
+  app.add_option("-p", http_port, "http_port")->check(CLI::ExistingDirectory);
 
   CLI11_PARSE(app, argc, argv);
 
@@ -163,7 +164,7 @@ int main(int argc, char *argv[]) {
     char cwd[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", cwd, PATH_MAX);
     if (-1 == count) {
-      perror("cant get readlink");
+      perror("can't get readlink");
       return 1;
     }
     frontend_path = dirname(cwd);
@@ -172,6 +173,7 @@ int main(int argc, char *argv[]) {
   }
   cout << "is_demon_mode=" << is_demon_mode << endl;
   cout << "frontend_path=" << frontend_path << endl;
+  cout << "http_port=" << http_port << endl;
 
 //--------------
   if (is_demon_mode) {
@@ -184,8 +186,8 @@ int main(int argc, char *argv[]) {
   pca9685PWMReset(fd);
 #endif
   init();
-  motorR0.init(fd, 0, 1);
-  motorL0.init(fd, 2, 3);
+  motorR0.init();
+  motorL0.init();
   chasis_camer.init();
 
   std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
@@ -202,17 +204,16 @@ int main(int argc, char *argv[]) {
   /* Set HTTP server options */
   memset(&bind_opts, 0, sizeof(bind_opts));
   bind_opts.error_string = &err_str;
-  nc = mg_bind_opt(&mgr, s_http_port, ev_handler, bind_opts);
+  nc = mg_bind_opt(&mgr, http_port.c_str(), ev_handler, bind_opts);
   if (nc == NULL) {
-    fprintf(stderr, "Error starting server on port %s: %s\n", s_http_port,
+    fprintf(stderr, "Error starting server on port %s: %s\n", http_port.c_str(),
             *bind_opts.error_string);
     exit(1);
   }
 
   mg_set_protocol_http_websocket(nc);
   s_http_server_opts.enable_directory_listing = "no";
-  printf("Starting RESTful server on port %s, serving %s\n", s_http_port,
-         s_http_server_opts.document_root);
+  cout << "Starting RESTful server" << endl;
   for (;;) {
     mg_mgr_poll(&mgr, 1000);
   }
