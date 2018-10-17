@@ -1,4 +1,5 @@
 PROG = rcbrowser
+CXX = D:\personal\SysGCC\bin\arm-linux-gnueabihf-g++.exe
 #MODULE_CFLAGS=  -DMG_ENABLE_THREADS -DMG_ENABLE_HTTP_WEBSOCKET=0
 MODULE_CFLAGS=-DMG_DISABLE_DAV_AUTH -DMG_ENABLE_FAKE_DAVLOCK
 MONGOOSE_DIR = ../mongoose
@@ -11,8 +12,9 @@ CFLAGS += -pthread
 CFLAGS += -I../rapidjson/include/
 CFLAGS += -I../pca9685/src
 
-#CFLAGS +=  -D _SIMULATION_
-CFLAGS +=-lwiringPi -lwiringPiDev -lpthread -lm -lwiringPiPca9685
+CFLAGS +=  -D _SIMULATION_
+#CFLAGS +=-lwiringPi -lwiringPiDev -lpthread -lm -lwiringPiPca9685
+CFLAGS += --static
  
 OBJ_DIR = ./obj/
 MKDIR_P = mkdir -p

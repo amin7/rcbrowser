@@ -150,7 +150,7 @@ void init() {
 }
 
 int main(int argc, char *argv[]) {
-  CLI::App app { "App description" };
+  CLI::App app { "rc browser" };
   bool is_demon_mode;
   string frontend_path = "";
   string http_port = "8000";
