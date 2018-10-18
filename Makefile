@@ -7,6 +7,8 @@ SOURCES = rcbrowser.cpp
 SOURCES += $(MONGOOSE_DIR)/mongoose.c
 SOURCES += CDCmotor.cpp
 SOURCES += pca9685Servo.cpp
+SOURCES += hc_sr04.cpp
+
 CFLAGS = -g -W -Wall -I$(MONGOOSE_DIR) -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)  -std=c++11
 CFLAGS += -pthread
 CFLAGS += -I../rapidjson/include/

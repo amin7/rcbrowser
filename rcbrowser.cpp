@@ -22,6 +22,7 @@
 #include <libgen.h>
 #include "CLI11.hpp"
 #include "demonize.h"
+#include "hc_sr04.h"
 
 using namespace std;
 
@@ -30,6 +31,9 @@ typedef bool (*cmd_hander_t)(rapidjson::Document &);
 static struct mg_serve_http_opts s_http_server_opts;
 CDCmotor motorL0(3, 2);
 CDCmotor motorR0(0, 1);
+string frontend_home;
+HC_SR04 ultrasonic0(2, 3);
+const char *home_page = "/driver.html";
 
 const auto pin_chasis_cameraY = 15;
 pca9685_Servo chasis_camer(pin_chasis_cameraY);
@@ -126,7 +130,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
   case MG_EV_HTTP_REQUEST: {
     print(hm->uri);
     if (mg_vcmp(&hm->uri, "/") == 0) {
-      mg_http_serve_file(nc, hm, "./frontend/driver.html", mg_mk_str("text/html"), mg_mk_str(""));
+        mg_http_serve_file(nc, hm, frontend_home.c_str(), mg_mk_str("text/html"), mg_mk_str(""));
     } else
     if (mg_vcmp(&hm->uri, "/command") == 0) {
       command_handler(nc, hm);
@@ -146,49 +150,52 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
 
 void init() {
-
+#ifndef _SIMULATION_
+  int fd = 0;
+  wiringPiSetup();
+  fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
+  pca9685PWMReset(fd);
+#endif
+  motorR0.init();
+  motorL0.init();
+  chasis_camer.init();
+  ultrasonic0.init();
 }
 
 int main(int argc, char *argv[]) {
   CLI::App app { "rc browser" };
   bool is_demon_mode;
-  string frontend_path = "";
+  string frontend_folder = "";
   string http_port = "8000";
   app.add_flag("-d", is_demon_mode, "demon mode");
-  app.add_option("-f", frontend_path, "frontend_path")->check(CLI::ExistingDirectory);
+  app.add_option("-f", frontend_folder, "frontend_folder")->check(CLI::ExistingDirectory);
   app.add_option("-p", http_port, "http_port")->check(CLI::ExistingDirectory);
 
   CLI11_PARSE(app, argc, argv);
 
-  if ("" == frontend_path) { //use current dir
+  if ("" == frontend_folder) { //use current dir
     char cwd[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", cwd, PATH_MAX);
     if (-1 == count) {
       perror("can't get readlink");
       return 1;
     }
-    frontend_path = dirname(cwd);
-    frontend_path += "/frontend/";
+    frontend_folder = dirname(cwd);
+    frontend_folder += "/frontend";
 
   }
   cout << "is_demon_mode=" << is_demon_mode << endl;
-  cout << "frontend_path=" << frontend_path << endl;
+  cout << "frontend_path=" << frontend_folder << endl;
   cout << "http_port=" << http_port << endl;
+  cout << "home_page=" << home_page << endl;
 
+  frontend_home = frontend_folder + home_page;
 //--------------
   if (is_demon_mode) {
     daemonize();
   }
-  int fd = 0;
-#ifndef _SIMULATION_
-  wiringPiSetup();
-  fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
-  pca9685PWMReset(fd);
-#endif
+
   init();
-  motorR0.init();
-  motorL0.init();
-  chasis_camer.init();
 
   std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
   std::thread t1(call_from_thread);
@@ -199,7 +206,7 @@ int main(int argc, char *argv[]) {
   const char *err_str;
   mg_mgr_init(&mgr, NULL);
 
-  s_http_server_opts.document_root = frontend_path.c_str();
+  s_http_server_opts.document_root = frontend_folder.c_str();
   //s_http_server_opts.url_rewrites = NULL;
   /* Set HTTP server options */
   memset(&bind_opts, 0, sizeof(bind_opts));
