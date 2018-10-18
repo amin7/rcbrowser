@@ -16,14 +16,14 @@ using namespace std;
 
 void HC_SR04::init() {
 #ifndef _SIMULATION_
-  pinMode(trig, OUTPUT);
-  pinMode(echo, INPUT);
-  pullUpDnControl(echo, PUD_DOWN);
-
-  if (wiringPiISR(echo, INT_EDGE_RISING, &myInterrupt) < 0) {
-    cerr << "interrupt error [" << strerror(errno) << "]:" << errno << endl;
-    return;
-  }
+//  pinMode(trig, OUTPUT);
+//  pinMode(echo, INPUT);
+//  pullUpDnControl(echo, PUD_DOWN);
+//
+//  if (wiringPiISR(echo, INT_EDGE_RISING, &myInterrupt) < 0) {
+//    cerr << "interrupt error [" << strerror(errno) << "]:" << errno << endl;
+//    return;
+//  }
 #endif
 }
 int32_t HC_SR04::measure(int32_t maxDistance) {
