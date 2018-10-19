@@ -9,34 +9,47 @@
 #include <wiringPi.h>
 #endif
 #include<iostream>
+#include <string.h>
 #include<errno.h>
 #include <thread>
 
 using namespace std;
+std::chrono::microseconds stop_time;
+void myInterrupt() {
+  stop_time = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch());
+}
 
 void HC_SR04::init() {
 #ifndef _SIMULATION_
-//  pinMode(trig, OUTPUT);
-//  pinMode(echo, INPUT);
-//  pullUpDnControl(echo, PUD_DOWN);
-//
-//  if (wiringPiISR(echo, INT_EDGE_RISING, &myInterrupt) < 0) {
-//    cerr << "interrupt error [" << strerror(errno) << "]:" << errno << endl;
-//    return;
-//  }
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  pullUpDnControl(echo, PUD_DOWN);
+
+  if (wiringPiISR(echo, INT_EDGE_RISING, &myInterrupt) < 0) {
+    cerr << "interrupt error [" << strerror(errno) << "]:" << errno << endl;
+    return;
+  }
 #endif
+  sound_speed = soundspeed();
 }
+float HC_SR04::soundspeed(float temperature, float hum) {
+  return 331400 + 606 * temperature + 12.4 * hum;
+}
+
 int32_t HC_SR04::measure(int32_t maxDistance) {
-  stop_time = chrono::milliseconds(0);
-  start_time = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch());
+  stop_time = chrono::microseconds(0);
+  start_time = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch());
 
 #ifndef _SIMULATION_
+  digitalWrite(trig, 0);
+  this_thread::sleep_for(chrono::microseconds(2));
   digitalWrite(trig, 1);
-  delayMicroseconds(10);
+  this_thread::sleep_for(chrono::microseconds(10));
   digitalWrite(trig, 0);
 #endif
-  this_thread::sleep_for(chrono::milliseconds(0));
-  if (stop_time == chrono::milliseconds(0)) { //no responce
+  int32_t timeout = (maxDistance * 1000 * 2 / sound_speed);
+  this_thread::sleep_for(chrono::milliseconds(timeout));
+  if (stop_time == chrono::microseconds(0)) { //no responce
     return -1;
   }
 

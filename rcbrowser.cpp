@@ -39,9 +39,11 @@ const auto pin_chasis_cameraY = 15;
 pca9685_Servo chasis_camer(pin_chasis_cameraY);
 
 void call_from_thread() {
-  cout << "thread function" << std::endl;
+  cout << "thread function" << endl;
   while (1) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    cout << "ultrasonic=" << ultrasonic0.measure() << endl;
+
   }
 }
 
@@ -80,10 +82,31 @@ bool handle_wheels(rapidjson::Document &d) {
   return true;
 }
 
+const auto pin_manipulator_base = 4;
+const auto pin_manipulator_l = 5;
+const auto pin_manipulator_r = 6;
+
+pca9685_Servo manipulator_base(pin_manipulator_base);
+pca9685_Servo manipulator_l(pin_manipulator_l);
+pca9685_Servo manipulator_r(pin_manipulator_r);
+
+bool handle_manipulator(rapidjson::Document &d) {
+  const int16_t x = d["X"].GetInt();
+  const int16_t y = d["Y"].GetInt();
+  const int16_t z = d["Z"].GetInt();
+
+  cout << "manipulator=" << x << ":" << y << ":" << z;
+  cout << endl;
+  manipulator_base.set(x);
+  manipulator_l.set(y);
+  manipulator_r.set(z);
+  return true;
+}
 
 map<string, cmd_hander_t> cmd_map = {
     { "chasiscamera", handle_chasiscamera },
-    { "wheels", handle_wheels }
+    { "wheels", handle_wheels },
+    { "manipulator", handle_manipulator }
 };
 enum {
   http_err_Ok = 200,
@@ -160,6 +183,10 @@ void init() {
   motorL0.init();
   chasis_camer.init();
   ultrasonic0.init();
+
+  manipulator_base.init();
+  manipulator_l.init();
+  manipulator_r.init();
 }
 
 int main(int argc, char *argv[]) {

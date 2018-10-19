@@ -1,8 +1,7 @@
 PROG = rcbrowser
-
-SIMULATION = 1
-
+#SIMULATION = 1
 ifeq ($(OS),Windows_NT)
+SIMULATION = 1
 CXX = arm-linux-gnueabihf-g++.exe
 endif
 
