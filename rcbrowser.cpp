@@ -32,17 +32,21 @@ static struct mg_serve_http_opts s_http_server_opts;
 CDCmotor motorL0(3, 2);
 CDCmotor motorR0(0, 1);
 string frontend_home;
-HC_SR04 ultrasonic0(2, 3);
+
+HC_SR04 ultrasonic0(28, 29);
 const char *home_page = "/driver.html";
 
 const auto pin_chasis_cameraY = 15;
 pca9685_Servo chasis_camer(pin_chasis_cameraY);
 
 void call_from_thread() {
+    int32_t prev=0;
   cout << "thread function" << endl;
   while (1) {
-
-    cout << "ultrasonic=" << ultrasonic0.measure() << endl;
+      const auto cur =ultrasonic0.measure();
+      if(cur!=prev)
+          cout << "ultrasonic=" << cur << endl;
+      prev=cur;
 
   }
 }
