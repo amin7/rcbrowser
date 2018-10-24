@@ -33,7 +33,8 @@ CDCmotor motorL0(3, 2);
 CDCmotor motorR0(0, 1);
 string frontend_home;
 
-HC_SR04 ultrasonic0(28, 29);
+//HC_SR04 ultrasonic0(28, 29); //wiringPI
+HC_SR04 ultrasonic0(20, 21); //GPIO
 const char *home_page = "/driver.html";
 
 const auto pin_chasis_cameraY = 15;
@@ -179,7 +180,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 void init() {
 #ifndef _SIMULATION_
   int fd = 0;
-  wiringPiSetup();
+  //wiringPiSetup();
+  wiringPiSetupGpio(); //use broadcom naming
   fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
   pca9685PWMReset(fd);
 #endif

@@ -18,7 +18,8 @@ class HC_SR04 {
   float sound_speed;
 public:
   enum {
-    MAX_DISTANCE = 4000
+    MAX_DISTANCE = 4000,
+    MEASURING_ANGLE = 15 //degre
   };
   HC_SR04(uint8_t _trig, uint8_t _echo) :
       trig(_trig), echo(_echo) {
@@ -34,7 +35,7 @@ public:
    * ret distance in mm, -1 - no echo
    */
 
-  int32_t measure(int32_t maxDistance = MAX_DISTANCE);
+  int32_t measure();
   };
 
 
