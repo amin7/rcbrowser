@@ -24,8 +24,9 @@ function update_move(){
     xmlHttp.send(data);
     console.log(data);	
 }
- function init(){
-	console.log('started');  	
+ function init(){	 
+	console.log('started');	 
+
 	manipulatorX=document.getElementById('manipulatorX');
 	manipulatorY=document.getElementById('manipulatorY');
 	manipulatorZ=document.getElementById('manipulatorZ');

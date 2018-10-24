@@ -13,6 +13,7 @@ SOURCES += $(MONGOOSE_DIR)/mongoose.c
 SOURCES += CDCmotor.cpp
 SOURCES += pca9685Servo.cpp
 SOURCES += hc_sr04.cpp
+SOURCES += CManipulator.cpp
 ifndef SIMULATION
 SOURCES += ./libs/pca9685.c
 endif

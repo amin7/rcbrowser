@@ -23,6 +23,7 @@
 #include "CLI11.hpp"
 #include "demonize.h"
 #include "hc_sr04.h"
+#include "CManipulator.h"
 
 using namespace std;
 
@@ -91,9 +92,7 @@ const auto pin_manipulator_base = 4;
 const auto pin_manipulator_l = 5;
 const auto pin_manipulator_r = 6;
 
-pca9685_Servo manipulator_base(pin_manipulator_base);
-pca9685_Servo manipulator_l(pin_manipulator_l);
-pca9685_Servo manipulator_r(pin_manipulator_r);
+CManipulator manipulator(pin_manipulator_base, pin_manipulator_l, pin_manipulator_r);
 
 bool handle_manipulator(rapidjson::Document &d) {
   const int16_t x = d["X"].GetInt();
@@ -102,9 +101,7 @@ bool handle_manipulator(rapidjson::Document &d) {
 
   cout << "manipulator=" << x << ":" << y << ":" << z;
   cout << endl;
-  manipulator_base.set(x);
-  manipulator_l.set(y);
-  manipulator_r.set(z);
+  manipulator.set_absolute(x, y, z);
   return true;
 }
 
@@ -189,10 +186,7 @@ void init() {
   motorL0.init();
   chasis_camer.init();
   ultrasonic0.init();
-
-  manipulator_base.init();
-  manipulator_l.init();
-  manipulator_r.init();
+  manipulator.init();
 }
 
 int main(int argc, char *argv[]) {
