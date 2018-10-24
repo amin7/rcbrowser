@@ -28,7 +28,7 @@ void HC_SR04::init() {
   pullUpDnControl(echo, PUD_DOWN);
   digitalWrite(trig, 0);
 
-  if (wiringPiISR(echo, INT_EDGE_RISING, &begin_interrupt) < 0) {
+  if (wiringPiISR(echo, INT_EDGE_FALLING, &begin_interrupt) < 0) {
     cerr << "interrupt error [" << strerror(errno) << "]:" << errno << endl;
     return;
   }
@@ -52,17 +52,14 @@ int32_t HC_SR04::measure() {
   start_time = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch());
 
   //Wait for echo start
-//          while(digitalRead(echo) == LOW);
-//
-//          //Wait for echo end
-//          while(digitalRead(echo) == HIGH);
+
 #endif
-  const int32_t timeout = (MAX_DISTANCE * 1000 * 2 / sound_speed);
+  const int32_t timeout = (MAX_DISTANCE * 1000 * 3 / sound_speed);
   this_thread::sleep_for(chrono::milliseconds(timeout));
   if (stop_time == chrono::microseconds(0)) { //no responce
     return -1;
   }
-  return (stop_time - start_time).count()*sound_speed / 2/1000000;
+  return (stop_time - start_time).count() * sound_speed / 2 / 1000000 - 100;
 }
 
 //eof

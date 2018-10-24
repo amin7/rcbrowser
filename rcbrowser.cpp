@@ -30,8 +30,8 @@ using namespace std;
 typedef bool (*cmd_hander_t)(rapidjson::Document &);
 
 static struct mg_serve_http_opts s_http_server_opts;
-CDCmotor motorL0(3, 2);
-CDCmotor motorR0(0, 1);
+CDCmotor motorL0(2, 3);
+CDCmotor motorR0(1, 0);
 string frontend_home;
 
 //HC_SR04 ultrasonic0(28, 29); //wiringPI

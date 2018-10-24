@@ -29,7 +29,7 @@ public:
   /*
    *  result im mm/sec
    */
-  static float soundspeed(float temperature = 20, float hum = 50);
+  static float soundspeed(float temperature = 22, float hum = 60);
   /***
    * maxDistance im mm , to time out echo;
    * ret distance in mm, -1 - no echo
