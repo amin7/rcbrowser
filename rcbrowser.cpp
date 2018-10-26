@@ -36,6 +36,11 @@ string frontend_home;
 
 //HC_SR04 ultrasonic0(28, 29); //wiringPI
 HC_SR04 ultrasonic0(20, 21); //GPIO
+
+void ultrasonic0_echo_handler() {
+  ultrasonic0.echo_handler();
+}
+
 const char *home_page = "/driver.html";
 
 const auto pin_chasis_cameraY = 15;
@@ -185,7 +190,7 @@ void init() {
   motorR0.init();
   motorL0.init();
   chasis_camer.init();
-  ultrasonic0.init();
+  ultrasonic0.init(ultrasonic0_echo_handler);
   manipulator.init();
 }
 

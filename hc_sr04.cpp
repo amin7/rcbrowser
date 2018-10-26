@@ -14,21 +14,20 @@
 #include <thread>
 
 using namespace std;
-std::chrono::microseconds stop_time;
-void begin_interrupt() {
+void HC_SR04::echo_handler() {
   if (stop_time == chrono::microseconds(0)) { //1st time
     stop_time = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch());
     }
 }
 
-void HC_SR04::init() {
+void HC_SR04::init(void (*pEchoHandler)(void)) {
 #ifndef _SIMULATION_
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
   pullUpDnControl(echo, PUD_DOWN);
   digitalWrite(trig, 0);
 
-  if (wiringPiISR(echo, INT_EDGE_FALLING, &begin_interrupt) < 0) {
+  if (wiringPiISR(echo, INT_EDGE_FALLING, pEchoHandler) < 0) {
     cerr << "interrupt error [" << strerror(errno) << "]:" << errno << endl;
     return;
   }

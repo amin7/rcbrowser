@@ -14,6 +14,7 @@
 class HC_SR04 {
   const uint8_t trig;
   const uint8_t echo;
+  std::chrono::microseconds stop_time;
   std::chrono::microseconds start_time;
   float sound_speed;
 public:
@@ -24,8 +25,12 @@ public:
   HC_SR04(uint8_t _trig, uint8_t _echo) :
       trig(_trig), echo(_echo) {
   }
+  /***
+   *  in pEchoHandler  echo_handler must be called;
+   */
 
-  void init();
+  void echo_handler();
+  void init(void (*pEchoHandler)(void));
   /*
    *  result im mm/sec
    */
