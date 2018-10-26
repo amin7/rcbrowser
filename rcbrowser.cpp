@@ -68,6 +68,18 @@ void print(mg_str str) {
   std::cout << std::endl;
 }
 
+bool handle_test(rapidjson::Document &d) {
+
+  if (d.HasMember("pwm")) {
+    const uint8_t pin = d["pwm"].GetInt();
+    const uint16_t value = d["value"].GetInt();
+    pca9685_Servo::set_PWM(pin, value);
+    return true;
+  }
+  return false;
+}
+
+
 
 static bool handle_chasiscamera(rapidjson::Document &d) {
   try {
@@ -80,7 +92,6 @@ static bool handle_chasiscamera(rapidjson::Document &d) {
 }
   return true;
 }
-
 
 bool handle_wheels(rapidjson::Document &d) {
   const int16_t wheel_L0 = d["wheel_L0"].GetInt();
@@ -111,6 +122,7 @@ bool handle_manipulator(rapidjson::Document &d) {
 }
 
 map<string, cmd_hander_t> cmd_map = {
+    { "test", handle_test },
     { "chasiscamera", handle_chasiscamera },
     { "wheels", handle_wheels },
     { "manipulator", handle_manipulator }

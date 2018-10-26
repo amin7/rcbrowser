@@ -30,15 +30,5 @@
 			<type>2</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/rapidjson/include</locationURI>
 		</link>
-		<link>
-			<name>mongoose</name>
-			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/mongoose</locationURI>
-		</link>
-		<link>
-			<name>pca9685</name>
-			<type>2</type>
-			<location>D:/personal/git/pca9685/src</location>
-		</link>
 	</linkedResources>
 </projectDescription>

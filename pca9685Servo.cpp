@@ -12,31 +12,35 @@
 #endif
 #include <iostream>
 #include <string>
-#define _DMSG(arg) std::cout << __FILE__ << ":" << __LINE__ <<"("<<__FUNCTION__<< ")  DC[" << pin <<"] " <<arg<<std::endl
 
+pca9685_Servo::pca9685_Servo(uint8_t _pin) :
+    pin(_pin), minVal(0), maxVal(100), minPulse(0 * (50.0f * maxPWM / 1000)), maxPulse(2.5 * (50.0f * maxPWM / 1000))
+{
+}
+
+pca9685_Servo::pca9685_Servo(uint8_t _pin, int16_t _minVal, int16_t _maxVal, uint16_t _minPulse, uint16_t _maxPulse):
+    pin(_pin), minVal(_minVal), maxVal(_maxVal), minPulse(_minPulse), maxPulse(_maxPulse)
+{
+}
 void pca9685_Servo::init(uint8_t init_val) {
   set(init_val);
 }
 
-//http://en.wikipedia.org/wiki/Servo_control#Pulse_duration
-int pca9685_Servo::calcTicks(float impulseMs, int hertz)
-{
-    float cycleMs = 1000.0f / hertz;
-    return (int)(maxPWM * impulseMs / cycleMs + 0.5f);
-}
-
-
-void pca9685_Servo::set(uint8_t val) {
+void pca9685_Servo::set(int16_t val) {
   if (val > 100) {
     val = 100;
   }
-  //_DMSG("val="<<std::string(val));
-#ifndef _SIMULATION_
-  pwmWrite(300 + pin, minPulse + (maxPulse - minPulse) * val / 100);
-#endif
+  set_PWM(minPulse + (maxPulse - minPulse) * val / 100);
 }
 
-
-
-
-
+void pca9685_Servo::set_PWM(uint8_t pin, uint16_t pulse) {
+  if (maxPWM < pulse) {
+    pulse = maxPWM;
+  }
+  std::cout << __FILE__ << ":" << __LINE__ << "(" << __FUNCTION__ << ")  DC[" << pin << "]="
+      << pulse << std::endl;
+#ifndef _SIMULATION_
+  pwmWrite(300 + pin, pulse);
+#endif
+}
+//endif;
