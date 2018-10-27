@@ -7,7 +7,8 @@
 
 #include "CRadar.h"
 
-CRadar::CRadar(uint8_t _trig, uint8_t _echo, uint8_t _direction) {
+CRadar::CRadar(uint8_t _trig, uint8_t _echo, uint8_t _direction) :
+    dir_servo(_direction, 0, 180, 103, 520) {
 
 
 }

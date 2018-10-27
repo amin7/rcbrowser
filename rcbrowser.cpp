@@ -44,7 +44,7 @@ void ultrasonic0_echo_handler() {
 const char *home_page = "/driver.html";
 
 const auto pin_chasis_cameraY = 15;
-pca9685_Servo chasis_camer(pin_chasis_cameraY);
+pca9685_Servo chasis_camer(pin_chasis_cameraY, 0, 100, 120, 358);
 
 void call_from_thread() {
     int32_t prev=0;
@@ -86,7 +86,7 @@ static bool handle_chasiscamera(rapidjson::Document &d) {
   const int16_t Y = d["Y"].GetInt();
   std::cout << "DOM" << "Y" << Y << std::endl;
 
-  chasis_camer.set(Y*65/100);
+    chasis_camer.set(Y);
   } catch (RAPIDJSON_ERROR_CHARTYPE err) {
   std::cout <<"error" << std::endl;
 }
