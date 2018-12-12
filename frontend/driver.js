@@ -50,7 +50,7 @@ function set_chasiscamera(y){
     xmlHttp.send(data);
     console.log(data);	
 }
-
+var ad;
 function init_driver(){
 	let container_=document.getElementById('camera');
 	console.log('started init_driver');
@@ -97,8 +97,15 @@ function init_driver(){
 		set_chasiscamera(event.newValue);		
 	});	
 	
-	//radar("ultrasonic");
-	
+	ad=new radar("ultrasonic");
+	var eagle=-90;
+	setInterval(function(){
+	eagle+=180/20;
+	if(eagle>=90){
+		eagle=-90;
+	}
+	ad.draw(~~(Math.random() * 100),eagle);		
+	},100);
 	}
 
 function myFunction() {    

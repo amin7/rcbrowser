@@ -28,4 +28,10 @@ html, body {
     opacity:0.2;
     height: 100%;        
  }
- 
+#ultrasonic{
+    position: absolute;
+    top: 0px;     
+    right: 0px; 
+    height:30%;    
+    opacity:0.3;
+ } 
