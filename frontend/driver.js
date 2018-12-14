@@ -50,15 +50,14 @@ function set_chasiscamera(y){
     xmlHttp.send(data);
     console.log(data);	
 }
-var ad;
-function init_driver(){
-	let container_=document.getElementById('camera');
+var radar;
+var camera_slider;
+function init_driver(){	
 	console.log('started init_driver');
 	console.log('location.hostname='+document.location.hostname+' port='+document.location.port  );
 	
-	
 	var jChasis	= new VirtualJoystick({
-		container	: container_,
+		container	: document.getElementById('joystick_layer'),
 		limitStickTravel: true,
 		mouseSupport	: true,
 		strokeStyle	: 'cyan'
@@ -85,34 +84,33 @@ function init_driver(){
 		on_chasis_stop();
 	} );	
 	
-	var slider = new Slider("#camera_cY",{});
-	let _camera_cY1=document.getElementById('camera_cY1');
-	slider.on("slideStart",function(){		
-		_camera_cY1.style.opacity=1;
-		});
-	slider.on("slideStop",function(){		
-		_camera_cY1.style.opacity=0.2;
-	});
-	slider.on("change",function(event){
-		set_chasiscamera(event.newValue);		
-	});	
+	radar=new radar("ultrasonic");
+	camera_slider=new slider({container:"camera_control_"}, 
+			function(value){set_chasiscamera(~~value)});
 	
-	ad=new radar("ultrasonic");
+	
 	var eagle=-90;
 	setInterval(function(){
 	eagle+=180/20;
 	if(eagle>=90){
 		eagle=-90;
 	}
-	ad.draw(~~(Math.random() * 100),eagle);		
+	radar.draw(~~(Math.random() * 100),eagle);		
 	},100);
 	}
 
-function myFunction() {    
-    var x = document.getElementById("rotation");
-    if (x.style.display === "block") {
+function todgeElement(id) { 
+	console.log('todge '+id);
+	var x = document.getElementById(id);
+    if (x.style.display !== "none") {
     	x.style.display = "none";
     } else {
-    	x.style.display = "block";        
+    	x.style.display = "block";
     }
+}
+
+function resize(){
+	console.log('resize');	
+	radar.resize();
+	camera_slider.resize();
 }

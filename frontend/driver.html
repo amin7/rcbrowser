@@ -12,17 +12,19 @@
 <script src="libs/raphael.min.js"></script>
 <script src="driver.js"></script>
 <script src="libs/bootstrap-slider.min.js"></script>
-<script src="radar.js"></script>
+<script src="libs/radar.js"></script>
+<script src="libs/slider.js"></script>
   </head>
 
   <body>    
-  <body onload="init_driver()">
+  <body onload="init_driver()" onresize="resize()">  
     <div id="camera">
     <!--           
         <img id="fpv_stream" src="http://192.168.1.11:8080/stream/video.mjpeg" alt="image"  />
          -->
   <img id="fpv_stream" src="gfx/test.jpg" alt="image"  />
 	 </div>	         
+	 <div id="ultrasonic"></div>
      <div id="camera_control">
          <div id="camera_cY"  type="text" 
           data-slider-id="camera_cY1"
@@ -30,7 +32,14 @@
          data-slider-orientation=vertical data-slider-tooltip=hide data-slider-reversed=true>
          </div>
      </div>
-     <div id="ultrasonic"></div>     
+     <div id="control_layer_">
+	     <div id="info_bar">
+	        <button id="camera_button" class="btn" onclick="todgeElement('camera_control_')">Camera Dir</button>
+	        <button id="radar_button" class="btn" onclick="todgeElement('ultrasonic')">Radar</button>
+	     </div>	     
+	     <div id="joystick_layer"></div>
+	     <div id="camera_control_"></div>	     	         
+     </div>
   </body>
 </html>
 
