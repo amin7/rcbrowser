@@ -11,7 +11,7 @@
 //http://en.wikipedia.org/wiki/Servo_control#Pulse_duration
 
 class pca9685_Servo {
-  const uint8_t pin;
+  const uint8_t pin_;
   const int16_t minVal;
   const int16_t maxVal;
   const uint16_t minPulse;
@@ -25,7 +25,7 @@ public:
   void init(uint8_t init_val = 50);
   void set(int16_t val);
   void set_PWM(uint16_t pulse) {
-    set_PWM(pin, pulse);
+    set_PWM(pin_, pulse);
   }
   static void set_PWM(uint8_t pin, uint16_t pulse);
 };

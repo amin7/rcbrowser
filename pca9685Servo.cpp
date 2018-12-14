@@ -14,12 +14,12 @@
 #include <string>
 
 pca9685_Servo::pca9685_Servo(uint8_t _pin) :
-    pin(_pin), minVal(0), maxVal(100), minPulse(0 * (50.0f * maxPWM / 1000)), maxPulse(2.5 * (50.0f * maxPWM / 1000))
+    pin_(_pin), minVal(0), maxVal(100), minPulse(0 * (50.0f * maxPWM / 1000)), maxPulse(2.5 * (50.0f * maxPWM / 1000))
 {
 }
 
 pca9685_Servo::pca9685_Servo(uint8_t _pin, int16_t _minVal, int16_t _maxVal, uint16_t _minPulse, uint16_t _maxPulse):
-    pin(_pin), minVal(_minVal), maxVal(_maxVal), minPulse(_minPulse), maxPulse(_maxPulse)
+    pin_(_pin), minVal(_minVal), maxVal(_maxVal), minPulse(_minPulse), maxPulse(_maxPulse)
 {
 }
 void pca9685_Servo::init(uint8_t init_val) {

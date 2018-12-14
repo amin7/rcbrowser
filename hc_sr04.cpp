@@ -14,6 +14,7 @@
 #include <thread>
 
 using namespace std;
+
 void HC_SR04::echo_handler() {
   if (stop_time == chrono::microseconds(0)) { //1st time
     stop_time = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch());
@@ -22,12 +23,12 @@ void HC_SR04::echo_handler() {
 
 void HC_SR04::init(void (*pEchoHandler)(void)) {
 #ifndef _SIMULATION_
-  pinMode(trig, OUTPUT);
-  pinMode(echo, INPUT);
-  pullUpDnControl(echo, PUD_DOWN);
-  digitalWrite(trig, 0);
+  pinMode(pin_trig_, OUTPUT);
+  pinMode(pin_echo_, INPUT);
+  pullUpDnControl(pin_echo_, PUD_DOWN);
+  digitalWrite(pin_trig_, 0);
 
-  if (wiringPiISR(echo, INT_EDGE_FALLING, pEchoHandler) < 0) {
+  if (wiringPiISR(pin_echo_, INT_EDGE_FALLING, pEchoHandler) < 0) {
     cerr << "interrupt error [" << strerror(errno) << "]:" << errno << endl;
     return;
   }
@@ -41,11 +42,11 @@ float HC_SR04::soundspeed(float temperature, float hum) {
 
 int32_t HC_SR04::measure() {
 #ifndef _SIMULATION_
-  digitalWrite(trig, 0);
+  digitalWrite(pin_trig_, 0);
   this_thread::sleep_for(chrono::microseconds(2));
-  digitalWrite(trig, 1);
+  digitalWrite(pin_trig_, 1);
   this_thread::sleep_for(chrono::microseconds(10));
-  digitalWrite(trig, 0);
+  digitalWrite(pin_trig_, 0);
 
   stop_time = chrono::microseconds(0);
   start_time = chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch());

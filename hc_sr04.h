@@ -12,18 +12,19 @@
 
 //https://stackoverflow.com/questions/22580242/raspberrypi-g-ultrasonic-sensor-not-working
 class HC_SR04 {
-  const uint8_t trig;
-  const uint8_t echo;
+  const uint8_t pin_trig_;
+  const uint8_t pin_echo_;
   std::chrono::microseconds stop_time;
   std::chrono::microseconds start_time;
   float sound_speed;
+  static void echo_handler_(HC_SR04 *);
 public:
   enum {
     MAX_DISTANCE = 4000,
     MEASURING_ANGLE = 15 //degre
   };
   HC_SR04(uint8_t _trig, uint8_t _echo) :
-      trig(_trig), echo(_echo) {
+      pin_trig_(_trig), pin_echo_(_echo) {
   }
   /***
    *  in pEchoHandler  echo_handler must be called;

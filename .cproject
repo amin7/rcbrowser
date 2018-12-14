@@ -57,7 +57,6 @@
 			<resource resourceType="PROJECT" workspacePath="/rcbrowser"/>
 		</configuration>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cygwin.base.397870559;cdt.managedbuild.toolchain.gnu.cygwin.base.397870559.879141225;cdt.managedbuild.tool.gnu.c.compiler.cygwin.base.2118072264;cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.1722489995">
@@ -68,4 +67,16 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="rcbrowser" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments/>
+				<buildTarget>rcbrowser</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
 </cproject>

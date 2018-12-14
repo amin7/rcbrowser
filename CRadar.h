@@ -14,7 +14,7 @@ class CRadar {
   HC_SR04 hc_sr04;
   pca9685_Servo dir_servo;
 public:
-  CRadar(uint8_t _trig, uint8_t _echo, uint8_t _direction);
+  CRadar(uint8_t _trig_pin, uint8_t _echo_pin, uint8_t _direction_pin);
   void echo_handler() {
     hc_sr04.echo_handler();
   }
