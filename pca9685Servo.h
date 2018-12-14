@@ -17,12 +17,10 @@ class pca9685_Servo {
   const uint16_t minPulse;
   const uint16_t maxPulse;
 public:
-  enum {
-    maxPWM = 0xfff+1
-  };
+  static const auto maxPWM = 0xfff + 1;
   pca9685_Servo(uint8_t _pin);
   pca9685_Servo(uint8_t _pin, int16_t _minVal, int16_t _maxVal, uint16_t _minPulse, uint16_t _maxPulse);
-  void init(uint8_t init_val = 50);
+  void init(int16_t init_val = 0);
   void set(int16_t val);
   void set_PWM(uint16_t pulse) {
     set_PWM(pin_, pulse);

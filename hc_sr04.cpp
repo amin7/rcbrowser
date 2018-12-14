@@ -33,11 +33,8 @@ void HC_SR04::init(void (*pEchoHandler)(void)) {
     return;
   }
   
+
 #endif
-  sound_speed = soundspeed();
-}
-float HC_SR04::soundspeed(float temperature, float hum) {
-  return 331400 + 606 * temperature + 12.4 * hum;
 }
 
 int32_t HC_SR04::measure() {
@@ -54,12 +51,12 @@ int32_t HC_SR04::measure() {
   //Wait for echo start
 
 #endif
-  const int32_t timeout = (MAX_DISTANCE * 1000 * 3 / sound_speed);
+  const int32_t timeout = (MAX_DISTANCE * 1000 * 3 / SOUND_SPEED);
   this_thread::sleep_for(chrono::milliseconds(timeout));
   if (stop_time == chrono::microseconds(0)) { //no responce
     return -1;
   }
-  return (stop_time - start_time).count() * sound_speed / 2 / 1000000 - 100;
+  return (stop_time - start_time).count() * SOUND_SPEED / 2 / 1000000 - 100;
 }
 
 //eof

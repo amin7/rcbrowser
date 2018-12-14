@@ -24,6 +24,7 @@
 #include "demonize.h"
 #include "hc_sr04.h"
 #include "CManipulator.h"
+#include "CRadar.h"
 
 using namespace std;
 
@@ -36,6 +37,7 @@ auto frontend_home = static_cast<string>("");
 
 //HC_SR04 ultrasonic0(28, 29); //wiringPI
 HC_SR04 ultrasonic0 { 20, 21 }; //GPIO
+CRadar radar { 0, 0, 0 };
 
 void ultrasonic0_echo_handler() {
   ultrasonic0.echo_handler();
@@ -204,6 +206,7 @@ void init() {
   chasis_camer.init();
   ultrasonic0.init(ultrasonic0_echo_handler);
   manipulator.init();
+  radar.start();
 }
 
 int main(int argc, char *argv[]) {

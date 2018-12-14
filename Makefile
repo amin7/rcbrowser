@@ -1,5 +1,5 @@
 PROG = rcbrowser
-#SIMULATION = 1
+SIMULATION = 1
 ifeq ($(OS),Windows_NT)
 SIMULATION = 1
 CXX = arm-linux-gnueabihf-g++.exe
@@ -15,6 +15,7 @@ SOURCES += CDCmotor.cpp
 SOURCES += pca9685Servo.cpp
 SOURCES += hc_sr04.cpp
 SOURCES += CManipulator.cpp
+SOURCES += CRadar.cpp
 ifndef SIMULATION
 SOURCES += ./libs/pca9685.c
 endif

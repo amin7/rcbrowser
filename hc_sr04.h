@@ -16,13 +16,11 @@ class HC_SR04 {
   const uint8_t pin_echo_;
   std::chrono::microseconds stop_time;
   std::chrono::microseconds start_time;
-  float sound_speed;
   static void echo_handler_(HC_SR04 *);
 public:
-  enum {
-    MAX_DISTANCE = 4000,
-    MEASURING_ANGLE = 15 //degre
-  };
+  static const auto MAX_DISTANCE = 4000;
+  static const auto MEASURING_ANGLE = 15; //degre
+  static const auto SOUND_SPEED = 343000; //mm/sec
   HC_SR04(uint8_t _trig, uint8_t _echo) :
       pin_trig_(_trig), pin_echo_(_echo) {
   }
@@ -32,10 +30,6 @@ public:
 
   void echo_handler();
   void init(void (*pEchoHandler)(void));
-  /*
-   *  result im mm/sec
-   */
-  static float soundspeed(float temperature = 22, float hum = 60);
   /***
    * maxDistance im mm , to time out echo;
    * ret distance in mm, -1 - no echo
