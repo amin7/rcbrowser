@@ -14,7 +14,6 @@
 #include "pca9685Servo.h"
 class CRadar {
   //HC_SR04 hc_sr04;
-  pca9685_Servo dir_servo;
   void thread();
   std::atomic<bool> execute_ { false };
   std::thread thd_;
@@ -22,6 +21,7 @@ class CRadar {
   const int16_t angle_max = 90;
   int16_t angle = angle_min;
   bool angle_up = true;
+  pca9685_Servo dir_servo;
 public:
   CRadar(uint8_t _trig_pin, uint8_t _echo_pin, uint8_t _direction_pin);
 //  void echo_handler() {
