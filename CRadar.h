@@ -19,6 +19,8 @@ class CRadar {
   std::thread thd_;
   const int16_t angle_min = -90;
   const int16_t angle_max = 90;
+  const int16_t pwm_min = 110;
+  const int16_t pwm_max = 510;
   int16_t angle = angle_min;
   bool angle_up = true;
   pca9685_Servo dir_servo;

@@ -13,12 +13,12 @@
 using namespace std;
 
 CRadar::CRadar(uint8_t _trig, uint8_t _echo, uint8_t _direction) :
-    dir_servo(_direction, angle_min, angle_max, 103, 520) {
+    dir_servo(_direction, angle_min, angle_max, pwm_min, pwm_max) {
 
 }
 
 void CRadar::thread() {
-  cout << "CRadar thread function e=" << angle << endl;
+
 //hc_sr04.measure();
   if (angle_up) {
     angle += HC_SR04::MEASURING_ANGLE;
@@ -33,6 +33,7 @@ void CRadar::thread() {
     angle = angle_max;
     angle_up = false;
   }
+  cout << "CRadar thread function e=" << angle << endl;
   dir_servo.set(angle);
   std::this_thread::sleep_for(std::chrono::milliseconds(200)); //time for set servo
 }

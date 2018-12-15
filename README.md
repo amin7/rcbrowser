@@ -33,3 +33,9 @@ https://github.com/CLIUtils/CLI11.git
 
 [gnu]
 http://gnutoolchains.com/raspberry/
+
+[misk]
+sudo /etc/init.d/rcbrowser stop
+sudo /etc/init.d/rcbrowser start
+sudo mount -a
+

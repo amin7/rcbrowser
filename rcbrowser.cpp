@@ -34,10 +34,12 @@ static struct mg_serve_http_opts s_http_server_opts;
 CDCmotor motorL0(2, 3);
 CDCmotor motorR0(1, 0);
 auto frontend_home = static_cast<string>("");
-
+const auto radar_dir_pin_pca = 14;
+const auto radar_trig_pin = 20;
+const auto radar_echo_pin = 21;
 //HC_SR04 ultrasonic0(28, 29); //wiringPI
 HC_SR04 ultrasonic0 { 20, 21 }; //GPIO
-CRadar radar { 0, 0, 0 };
+CRadar radar { radar_trig_pin, radar_echo_pin, radar_dir_pin_pca };
 
 void ultrasonic0_echo_handler() {
   ultrasonic0.echo_handler();
@@ -46,7 +48,9 @@ void ultrasonic0_echo_handler() {
 const char *home_page = "/driver.html";
 
 const auto pin_chasis_cameraY = 15;
-pca9685_Servo chasis_camer(pin_chasis_cameraY, 0, 100, 120, 358);
+const auto pwm_chasis_camera_min = 350;
+const auto pwm_chasis_camera_max = 550;
+pca9685_Servo chasis_camer(pin_chasis_cameraY, 0, 100, pwm_chasis_camera_min, pwm_chasis_camera_max);
 
 void call_from_thread() {
     int32_t prev=0;
