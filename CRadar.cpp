@@ -7,19 +7,22 @@
 
 #include "CRadar.h"
 #include <iostream>
-#include <chrono>
 #include <string>
 
 using namespace std;
 
 CRadar::CRadar(uint8_t _trig, uint8_t _echo, uint8_t _direction) :
+    hc_sr04(_trig, _echo),
     dir_servo(_direction, angle_min, angle_max, pwm_min, pwm_max) {
-
 }
 
 void CRadar::thread() {
-
-//hc_sr04.measure();
+  map_mu_.lock();
+  surrond_[angle]= {
+    chrono::system_clock::now().time_since_epoch(),
+    hc_sr04.measure()
+  };
+  map_mu_.unlock();
   if (angle_up) {
     angle += HC_SR04::MEASURING_ANGLE;
   } else {
@@ -33,9 +36,9 @@ void CRadar::thread() {
     angle = angle_max;
     angle_up = false;
   }
-  cout << "CRadar thread function e=" << angle << endl;
   dir_servo.set(angle);
   std::this_thread::sleep_for(std::chrono::milliseconds(200)); //time for set servo
+
 }
 
 bool CRadar::start() {

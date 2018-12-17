@@ -28,12 +28,11 @@ function on_chasis_stop(){
 
 function set_wheels(l,r){
 	console.log('set_wheels l:r='+l+':'+r);	
-	var obj = new Object();
-	obj.cmd='wheels';
+	var obj = new Object();	
 	obj.wheel_L0=Number(l);    
 	obj.wheel_R0=Number(r);    
     var data = JSON.stringify(obj);
-    xmlHttp.open('PUT','command',true);
+    xmlHttp.open('PUT','wheels',true);
     xmlHttp.setRequestHeader("Content-type", "application/json");
     xmlHttp.send(data);
     console.log(data);
@@ -41,11 +40,10 @@ function set_wheels(l,r){
 
 function set_chasiscamera(y){
 	console.log('set_chasiscamera y='+y);	
-	var obj = new Object();
-	obj.cmd='chasiscamera';
+	var obj = new Object();	
 	obj.Y=Number(y);    
     var data = JSON.stringify(obj);
-    xmlHttp.open('PUT','command',true);
+    xmlHttp.open('PUT','chasiscamera',true);
     xmlHttp.setRequestHeader("Content-type", "application/json");
     xmlHttp.send(data);
     console.log(data);	

@@ -25,10 +25,8 @@
 #include "hc_sr04.h"
 #include "CManipulator.h"
 #include "CRadar.h"
+#include "CHttpCmdHandler.h"
 
-using namespace std;
-
-typedef bool (*cmd_hander_t)(rapidjson::Document &);
 
 static struct mg_serve_http_opts s_http_server_opts;
 CDCmotor motorL0(2, 3);
@@ -37,12 +35,11 @@ auto frontend_home = static_cast<string>("");
 const auto radar_dir_pin_pca = 14;
 const auto radar_trig_pin = 20;
 const auto radar_echo_pin = 21;
-//HC_SR04 ultrasonic0(28, 29); //wiringPI
-HC_SR04 ultrasonic0 { 20, 21 }; //GPIO
+
 CRadar radar { radar_trig_pin, radar_echo_pin, radar_dir_pin_pca };
 
 void ultrasonic0_echo_handler() {
-  ultrasonic0.echo_handler();
+  radar.echo_handler();
 }
 
 const char *home_page = "/driver.html";
@@ -51,18 +48,7 @@ const auto pin_chasis_cameraY = 15;
 const auto pwm_chasis_camera_min = 350;
 const auto pwm_chasis_camera_max = 550;
 pca9685_Servo chasis_camer(pin_chasis_cameraY, 0, 100, pwm_chasis_camera_min, pwm_chasis_camera_max);
-
-void call_from_thread() {
-    int32_t prev=0;
-  cout << "thread function" << endl;
-  while (1) {
-      const auto cur =ultrasonic0.measure();
-      if(cur!=prev)
-          cout << "ultrasonic=" << cur << endl;
-      prev=cur;
-
-  }
-}
+CHttpCmdHandler http_cmd_handler;
 
 void print(mg_str str) {
   const char *t = str.p;
@@ -74,7 +60,8 @@ void print(mg_str str) {
   std::cout << std::endl;
 }
 
-bool handle_test(rapidjson::Document &d) {
+
+bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
 
   if (d.HasMember("pwm")) {
     const uint8_t pin = d["pwm"].GetInt();
@@ -86,8 +73,7 @@ bool handle_test(rapidjson::Document &d) {
 }
 
 
-
-static bool handle_chasiscamera(rapidjson::Document &d) {
+static bool handle_chasiscamera(const rapidjson::Document &d, rapidjson::Document &reply) {
   try {
   const int16_t Y = d["Y"].GetInt();
   std::cout << "DOM" << "Y" << Y << std::endl;
@@ -99,7 +85,19 @@ static bool handle_chasiscamera(rapidjson::Document &d) {
   return true;
 }
 
-bool handle_wheels(rapidjson::Document &d) {
+static bool handle_chasisradar(const rapidjson::Document &d, rapidjson::Document &reply) {
+  try {
+    const int16_t Y = d["Y"].GetInt();
+    std::cout << "DOM" << "Y" << Y << std::endl;
+
+    chasis_camer.set(Y);
+  } catch (RAPIDJSON_ERROR_CHARTYPE err) {
+    std::cout << "error" << std::endl;
+  }
+  return true;
+}
+
+bool handle_wheels(const rapidjson::Document &d, rapidjson::Document &reply) {
   const int16_t wheel_L0 = d["wheel_L0"].GetInt();
   const int16_t wheel_R0 = d["wheel_R0"].GetInt();
 
@@ -116,7 +114,7 @@ const auto pin_manipulator_r = 6;
 
 CManipulator manipulator(pin_manipulator_base, pin_manipulator_l, pin_manipulator_r);
 
-bool handle_manipulator(rapidjson::Document &d) {
+bool handle_manipulator(const rapidjson::Document &d, rapidjson::Document &reply) {
   const int16_t x = d["X"].GetInt();
   const int16_t y = d["Y"].GetInt();
   const int16_t z = d["Z"].GetInt();
@@ -127,44 +125,29 @@ bool handle_manipulator(rapidjson::Document &d) {
   return true;
 }
 
-map<string, cmd_hander_t> cmd_map = {
-    { "test", handle_test },
-    { "chasiscamera", handle_chasiscamera },
-    { "wheels", handle_wheels },
-    { "manipulator", handle_manipulator }
-};
 enum {
   http_err_Ok = 200,
   http_err_BadRequest = 400,
   http_err_NotFount = 404,
-  http_err_InternallError = 500,
-  
-
+  http_err_InternallError = 500
 };
-void command_handler(struct mg_connection *nc, struct http_message *hm) {
+
+
+void command_handler(struct mg_connection *nc, struct http_message *hm, const CHttpCmdHandler::cmd_hander_t &handler) {
   int status_code = http_err_BadRequest;
-  std::cout << "command_handler" << std::endl;
   do {
     print(hm->body);
     std::string json;
     json.append(hm->body.p, hm->body.len);
     std::cout << "json=" << json << std::endl;
-    rapidjson::Document d;
-    if (d.Parse(json.c_str()).HasParseError()) {
+    rapidjson::Document part_cmd;
+    rapidjson::Document part_reply;
+    if (part_cmd.Parse(json.c_str()).HasParseError()) {
       break;
     }
-    if (!d.HasMember("cmd")) {
-      break;
-    }
-    const char *cmd = d["cmd"].GetString();
-    status_code = http_err_NotFount;
-
-    auto it = cmd_map.find(cmd);
-    if (it != cmd_map.end()) {
-      status_code = http_err_Ok; //ok
-      if (!(*it->second)(d)) {
+    status_code = http_err_Ok; //ok
+    if (!handler(part_cmd, part_reply)) {
         status_code = http_err_InternallError;
-      }
     }
   } while (0);
   mg_send_response_line(nc, status_code, "");
@@ -179,23 +162,24 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     print(hm->uri);
     if (mg_vcmp(&hm->uri, "/") == 0) {
         mg_http_serve_file(nc, hm, frontend_home.c_str(), mg_mk_str("text/html"), mg_mk_str(""));
-    } else
-    if (mg_vcmp(&hm->uri, "/command") == 0) {
-      command_handler(nc, hm);
-    } else {
-      mg_serve_http(nc, hm, s_http_server_opts); /* Serve static content */
+        break;
+      }
+      auto handler = http_cmd_handler.get_cmd_handler(hm->uri);
+      if (handler) {
+        command_handler(nc, hm, *handler);
+        break;
+      }
+      /* Serve static content */
+      mg_serve_http(nc, hm, s_http_server_opts);
     }
-  }
       break;
     default:
       break;
   }
 }
 
-//int main(int argc, char *argv[]) {
 #define PIN_BASE 300
 #define HERTZ 50
-
 
 void init() {
 #ifndef _SIMULATION_
@@ -208,7 +192,7 @@ void init() {
   motorR0.init();
   motorL0.init();
   chasis_camer.init();
-  ultrasonic0.init(ultrasonic0_echo_handler);
+  radar.init(ultrasonic0_echo_handler);
   manipulator.init();
   radar.start();
 }
@@ -241,6 +225,12 @@ int main(int argc, char *argv[]) {
   cout << "home_page=" << home_page << endl;
 
   frontend_home = frontend_folder + home_page;
+
+  http_cmd_handler.add("/test", handle_test);
+  http_cmd_handler.add("/chasiscamera", handle_chasiscamera);
+  http_cmd_handler.add("/wheels", handle_wheels);
+  http_cmd_handler.add("/manipulator", handle_manipulator);
+  http_cmd_handler.add("/chasisradar", handle_chasisradar);
 //--------------
   if (is_demon_mode) {
     daemonize();
@@ -249,7 +239,6 @@ int main(int argc, char *argv[]) {
   init();
 
   std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
-  std::thread t1(call_from_thread);
   struct mg_mgr mgr;
   struct mg_connection *nc;
   struct mg_bind_opts bind_opts;

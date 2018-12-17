@@ -9,21 +9,6 @@ function createXmlHttpObject(){
     return xmlHttp;
   };
   
-//var manipulatorX;
-//var manipulatorY;
-//var manipulatorZ;
-//function update_move(){		
-//	var obj = new Object();
-//	obj.cmd='manipulator';
-//	obj.X=Number(manipulatorX.value);
-//	obj.Y=Number(manipulatorY.value);
-//	obj.Z=Number(manipulatorZ.value);    
-//    var data = JSON.stringify(obj);
-//    xmlHttp.open('PUT','command',true);
-//    xmlHttp.setRequestHeader("Content-type", "application/json");
-//    xmlHttp.send(data);
-//    console.log(data);	
-//}
   var pwm_pin;
   var pwm_value;
   var pwm_range;
@@ -44,12 +29,11 @@ function createXmlHttpObject(){
 	  pwm_range.max=value;
   }
   function pwm_set(pin,value){
-	var obj = new Object();
-	obj.cmd='test';
+	var obj = new Object();	
 	obj.pwm=Number(pin);    
 	obj.value=Number(value);    
     var data = JSON.stringify(obj);
-    xmlHttp.open('PUT','command',true);
+    xmlHttp.open('PUT','test',true);
     xmlHttp.setRequestHeader("Content-type", "application/json");
     xmlHttp.send(data);
     console.log(data);
