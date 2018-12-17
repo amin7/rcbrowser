@@ -16,7 +16,7 @@
 #include "hc_sr04.h"
 #include "pca9685Servo.h"
 
-using surround_t=std::map<uint16_t, std::pair<std::chrono::system_clock::duration, int32_t>>;
+using surround_t=std::map<int16_t, std::pair<std::chrono::milliseconds, int32_t>>;
 class CRadar {
   HC_SR04 hc_sr04;
   void thread();
@@ -43,9 +43,11 @@ public:
 
   bool start();
   void stop();
-  void getMap(surround_t &surrount) {
-    std::lock_guard<std::mutex> guard(map_mu_);
-    surrount = surrond_;
+  surround_t getMap() {
+    map_mu_.lock();
+    auto surrount = surrond_;
+    map_mu_.unlock();
+    return surrount;
   }
   virtual ~CRadar() {
     stop();

@@ -8,6 +8,9 @@
 #include "CRadar.h"
 #include <iostream>
 #include <string>
+#ifdef _SIMULATION_
+#include <cstdlib>
+#endif
 
 using namespace std;
 
@@ -19,8 +22,12 @@ CRadar::CRadar(uint8_t _trig, uint8_t _echo, uint8_t _direction) :
 void CRadar::thread() {
   map_mu_.lock();
   surrond_[angle]= {
-    chrono::system_clock::now().time_since_epoch(),
+    chrono::duration_cast< chrono::milliseconds >(chrono::system_clock::now().time_since_epoch()),
+#ifndef _SIMULATION_
     hc_sr04.measure()
+#else
+    std::rand()%100
+#endif
   };
   map_mu_.unlock();
   if (angle_up) {

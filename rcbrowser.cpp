@@ -3,14 +3,16 @@
  * All rights reserved
  */
 
-#include "mongoose.h"
 #include <iostream>
 #include <stdint.h>
 #include <thread>
 #include <chrono>
 #include <string>
+#include "mongoose.h"
 #include "rapidjson/reader.h"
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
+#include "rapidjson/stringbuffer.h"
+#include <rapidjson/writer.h>
 #ifndef _SIMULATION_
 #include <wiringPi.h>
 #include "pca9685.h"
@@ -72,6 +74,9 @@ bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
   return false;
 }
 
+bool handle_status(const rapidjson::Document &d, rapidjson::Document &reply) {
+  return true;
+}
 
 static bool handle_chasiscamera(const rapidjson::Document &d, rapidjson::Document &reply) {
   try {
@@ -86,14 +91,18 @@ static bool handle_chasiscamera(const rapidjson::Document &d, rapidjson::Documen
 }
 
 static bool handle_chasisradar(const rapidjson::Document &d, rapidjson::Document &reply) {
-  try {
-    const int16_t Y = d["Y"].GetInt();
-    std::cout << "DOM" << "Y" << Y << std::endl;
-
-    chasis_camer.set(Y);
-  } catch (RAPIDJSON_ERROR_CHARTYPE err) {
-    std::cout << "error" << std::endl;
+  auto &allocator = reply.GetAllocator();
+  rapidjson::Value values(rapidjson::kArrayType);
+  //<angle<timestamp,distance>>
+  const auto &maps = radar.getMap();
+  for (const auto &element : maps) {
+    rapidjson::Value val(rapidjson::kObjectType);
+    val.AddMember("angle", element.first, allocator);
+    val.AddMember("timestamp", element.second.first.count(), allocator);
+    val.AddMember("distance", element.second.second, allocator);
+    values.PushBack(val, allocator);
   }
+  reply.AddMember("radar", values, allocator);
   return true;
 }
 
@@ -135,22 +144,31 @@ enum {
 
 void command_handler(struct mg_connection *nc, struct http_message *hm, const CHttpCmdHandler::cmd_hander_t &handler) {
   int status_code = http_err_BadRequest;
+  const char *c_reply = "";
+  rapidjson::Document part_cmd;
+  rapidjson::Document part_reply;
+  part_reply.SetObject();
   do {
     print(hm->body);
     std::string json;
     json.append(hm->body.p, hm->body.len);
     std::cout << "json=" << json << std::endl;
-    rapidjson::Document part_cmd;
-    rapidjson::Document part_reply;
+
     if (part_cmd.Parse(json.c_str()).HasParseError()) {
       break;
     }
-    status_code = http_err_Ok; //ok
-    if (!handler(part_cmd, part_reply)) {
-        status_code = http_err_InternallError;
+    status_code = http_err_InternallError;
+    if (handler(part_cmd, part_reply)) {
+      rapidjson::StringBuffer buffer;
+      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+      part_reply.Accept(writer);
+      c_reply = buffer.GetString();
+      std::cout << "reply=" << c_reply << std::endl;
+      status_code = http_err_Ok; //ok
     }
   } while (0);
-  mg_send_response_line(nc, status_code, "");
+
+  mg_send_response_line(nc, status_code, c_reply);
   nc->flags |= MG_F_SEND_AND_CLOSE;
 
 }
@@ -231,6 +249,7 @@ int main(int argc, char *argv[]) {
   http_cmd_handler.add("/wheels", handle_wheels);
   http_cmd_handler.add("/manipulator", handle_manipulator);
   http_cmd_handler.add("/chasisradar", handle_chasisradar);
+  http_cmd_handler.add("/status", handle_status);
 //--------------
   if (is_demon_mode) {
     daemonize();
