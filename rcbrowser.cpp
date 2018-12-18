@@ -44,11 +44,11 @@ void ultrasonic0_echo_handler() {
   radar.echo_handler();
 }
 
-const char *home_page = "/driver.html";
+constexpr char *home_page = "/driver.html";
 
-const auto pin_chasis_cameraY = 15;
-const auto pwm_chasis_camera_min = 350;
-const auto pwm_chasis_camera_max = 550;
+constexpr auto pin_chasis_cameraY = 15;
+constexpr auto pwm_chasis_camera_min = 350;
+constexpr auto pwm_chasis_camera_max = 550;
 pca9685_Servo chasis_camer(pin_chasis_cameraY, 0, 100, pwm_chasis_camera_min, pwm_chasis_camera_max);
 CHttpCmdHandler http_cmd_handler;
 
@@ -91,14 +91,31 @@ static bool handle_chasiscamera(const rapidjson::Document &d, rapidjson::Documen
 }
 
 static bool handle_chasisradar(const rapidjson::Document &d, rapidjson::Document &reply) {
+  static auto lastUpd = static_cast<int64_t>(0);
+  auto sendDelta = false;
+  if (d.HasMember("delta")) {
+    sendDelta = d["delta"].GetBool();
+  }
   auto &allocator = reply.GetAllocator();
+
+  reply.AddMember("AngleMin", radar.getAngleMin(), allocator);
+  reply.AddMember("AngleMax", radar.getAngleMax(), allocator);
+  reply.AddMember("AngleStep", radar.getAngleStep(), allocator);
   rapidjson::Value values(rapidjson::kArrayType);
   //<angle<timestamp,distance>>
   const auto &maps = radar.getMap();
   for (const auto &element : maps) {
+    const auto timestamp = element.second.first.count();
+    if (lastUpd <= timestamp) {
+      lastUpd = timestamp;
+    } else {
+      if (sendDelta) {
+        continue;
+      }
+    }
     rapidjson::Value val(rapidjson::kObjectType);
     val.AddMember("angle", element.first, allocator);
-    val.AddMember("timestamp", element.second.first.count(), allocator);
+    val.AddMember("timestamp", timestamp, allocator);
     val.AddMember("distance", element.second.second, allocator);
     values.PushBack(val, allocator);
   }
@@ -153,22 +170,30 @@ void command_handler(struct mg_connection *nc, struct http_message *hm, const CH
     std::string json;
     json.append(hm->body.p, hm->body.len);
     std::cout << "json=" << json << std::endl;
-
-    if (part_cmd.Parse(json.c_str()).HasParseError()) {
-      break;
+    if (json.length()) {
+      if (part_cmd.Parse(json.c_str()).HasParseError()) {
+        break;
+      }
+    } else {
+      part_cmd.SetObject(); //dummy object
     }
     status_code = http_err_InternallError;
     if (handler(part_cmd, part_reply)) {
+      status_code = http_err_Ok; //ok
       rapidjson::StringBuffer buffer;
       rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
       part_reply.Accept(writer);
       c_reply = buffer.GetString();
       std::cout << "reply=" << c_reply << std::endl;
-      status_code = http_err_Ok; //ok
+      const auto reply_sz = strlen(c_reply);
+      mg_send_head(nc, status_code, reply_sz, nullptr);
+      mg_send(nc, c_reply, reply_sz);
+      nc->flags |= MG_F_SEND_AND_CLOSE;
+      return;
     }
   } while (0);
 
-  mg_send_response_line(nc, status_code, c_reply);
+  mg_send_response_line(nc, status_code, nullptr);
   nc->flags |= MG_F_SEND_AND_CLOSE;
 
 }

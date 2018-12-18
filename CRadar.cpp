@@ -26,7 +26,7 @@ void CRadar::thread() {
 #ifndef _SIMULATION_
     hc_sr04.measure()
 #else
-    std::rand()%100
+    static_cast<int32_t>(static_cast<float>(std::rand())/RAND_MAX*100)
 #endif
   };
   map_mu_.unlock();

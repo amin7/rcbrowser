@@ -1,16 +1,3 @@
-xmlHttp=createXmlHttpObject();
-
-function createXmlHttpObject(){
-    if(window.XMLHttpRequest){
-      xmlHttp=new XMLHttpRequest();
-    }else{
-      xmlHttp=new ActiveXObject('Microsoft.XMLHTTP');
-    }
-    return xmlHttp;
-  }
-
-;
-
 function minmax(veriable,min,max){
 	if(veriable<min){
 		return min;
@@ -27,6 +14,7 @@ function on_chasis_stop(){
 }
 
 function set_wheels(l,r){
+	var xmlHttp = new XMLHttpRequest();
 	console.log('set_wheels l:r='+l+':'+r);	
 	var obj = new Object();	
 	obj.wheel_L0=Number(l);    
@@ -39,6 +27,7 @@ function set_wheels(l,r){
 }
 
 function set_chasiscamera(y){
+	var xmlHttp = new XMLHttpRequest();
 	console.log('set_chasiscamera y='+y);	
 	var obj = new Object();	
 	obj.Y=Number(y);    
@@ -50,6 +39,29 @@ function set_chasiscamera(y){
 }
 var radar;
 var camera_slider;
+
+function get_chasis_radar(send_delta){
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function(){
+    if (xmlHttp.readyState == 4){
+      if(xmlHttp.status == 200) {
+        var res = JSON.parse(xmlHttp.responseText);
+        if(!radar){//init radar
+        	radar=new Radar({id:"ultrasonic",
+        		minAngle:res.AngleMin,maxAngle:res.AngleMax,angleStep:res.AngleStep	});
+        }
+        res.radar.forEach(function(item){
+    			radar.draw(item.distance,item.angle);
+    		});        
+        setTimeout(function(){get_chasis_radar(true);},500);
+      }
+    }
+  };
+  xmlHttp.open("PUT", "/chasisradar", true);
+  xmlHttp.setRequestHeader("Content-type", "application/json");
+  xmlHttp.send((send_delta)?'{"delta":true}':null);
+}
+
 function init_driver(){	
 	console.log('started init_driver');
 	console.log('location.hostname='+document.location.hostname+' port='+document.location.port  );
@@ -60,11 +72,6 @@ function init_driver(){
 		mouseSupport	: true,
 		strokeStyle	: 'cyan'
 	});
-	
-//	jChasis.addEventListener('startValidation', function(x){		
-//		if( x <= window.innerWidth/2 )	return false;
-//		return true
-//	});
 
 	jChasis.addEventListener("move",function(){
 		var deltaX=parseInt(jChasis.deltaX());
@@ -81,21 +88,12 @@ function init_driver(){
 	jChasis.addEventListener("end",function(){		
 		on_chasis_stop();
 	} );	
-	
-	radar=new radar("ultrasonic");
+		
 	camera_slider=new slider({container:"camera_control_"}, 
 			function(value){set_chasiscamera(~~value)});
-	
-	
-	var eagle=-90;
-	setInterval(function(){
-	eagle+=180/20;
-	if(eagle>=90){
-		eagle=-90;
-	}
-	radar.draw(~~(Math.random() * 100),eagle);		
-	},100);
-	}
+		
+	get_chasis_radar();
+}
 
 function todgeElement(id) { 
 	console.log('todge '+id);
@@ -108,7 +106,8 @@ function todgeElement(id) {
 }
 
 function resize(){
-	console.log('resize');	
-	radar.resize();
+	console.log('resize');
+	if(radar)
+		radar.resize();
 	camera_slider.resize();
 }

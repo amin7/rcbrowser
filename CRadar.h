@@ -52,6 +52,21 @@ public:
   virtual ~CRadar() {
     stop();
   }
+  const int16_t getAngleStep() const
+  {
+    return hc_sr04.MEASURING_ANGLE;
+  }
+
+  const int16_t getAngleMax() const
+  {
+    return angle_max;
+  }
+
+  const int16_t getAngleMin() const
+  {
+    return angle_min;
+  }
+
   ;
 };
 

@@ -1,11 +1,11 @@
 //http://dmitrybaranovskiy.github.io/raphael/
-function radar(id){
-	console.log('radar id='+id);
-	const radar_id_ = document.getElementById(id);
-	const minAngle = -90;
-	const maxAngle = 90;
-	const sectors=20;
-	const angleStep=(maxAngle-minAngle)/sectors;
+function Radar(opts){
+	opts			= opts			|| {};	
+	console.log('radar init opts='+opts);
+	const radar_id_ = document.getElementById(opts.id);
+	const minAngle = opts.minAngle||-90;
+	const maxAngle = opts.maxAngle||90;	
+	const angleStep= opts.angleStep||15;
 	const maxDistance = 100;		
 	var sonic =[];
 	var cash_val=[];
@@ -52,7 +52,7 @@ function radar(id){
 		return drawSector;
 	}
 	this.draw=function(distance, andle){
-		console.log('draw radar ['+andle+']='+distance);			
+//		console.log('draw radar ['+andle+']='+distance);			
 		if(distance>maxDistance){
 			distance=maxDistance;
 		}		
@@ -74,6 +74,6 @@ function radar(id){
 				'stroke': 'black',
 				"stroke-width": 1
 			});
-		}
-	}	
+		}	
+	}		
 }
