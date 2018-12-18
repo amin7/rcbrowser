@@ -40,26 +40,30 @@ function set_chasiscamera(y){
 var radar;
 var camera_slider;
 
-function get_chasis_radar(send_delta){
+function get_chasis_radar(timestamp){
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function(){
     if (xmlHttp.readyState == 4){
       if(xmlHttp.status == 200) {
-        var res = JSON.parse(xmlHttp.responseText);
+        var res = JSON.parse(xmlHttp.responseText);        
         if(!radar){//init radar
         	radar=new Radar({id:"ultrasonic",
         		minAngle:res.AngleMin,maxAngle:res.AngleMax,angleStep:res.AngleStep	});
         }
+        var last_timestamp=0;
         res.radar.forEach(function(item){
-    			radar.draw(item.distance,item.angle);
-    		});        
-        setTimeout(function(){get_chasis_radar(true);},500);
+        	if(last_timestamp<item.timestamp){
+        		last_timestamp=item.timestamp;
+        	}    		
+			radar.draw(item.distance,item.angle);
+		});        
+        setTimeout(function(){get_chasis_radar(last_timestamp);},300);
       }
     }
   };
   xmlHttp.open("PUT", "/chasisradar", true);
   xmlHttp.setRequestHeader("Content-type", "application/json");
-  xmlHttp.send((send_delta)?'{"delta":true}':null);
+  xmlHttp.send((timestamp)?('{"timestamp":'+timestamp+'}'):null);
 }
 
 function init_driver(){	

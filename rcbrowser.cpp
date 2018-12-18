@@ -91,16 +91,17 @@ static bool handle_chasiscamera(const rapidjson::Document &d, rapidjson::Documen
 }
 
 static bool handle_chasisradar(const rapidjson::Document &d, rapidjson::Document &reply) {
-  static auto lastUpd = static_cast<int64_t>(0);
+  auto lastUpd = static_cast<int64_t>(0);
   auto sendDelta = false;
-  if (d.HasMember("delta")) {
-    sendDelta = d["delta"].GetBool();
+  if (d.HasMember("timestamp")) {
+    lastUpd = d["timestamp"].GetInt64();
   }
   auto &allocator = reply.GetAllocator();
-
-  reply.AddMember("AngleMin", radar.getAngleMin(), allocator);
-  reply.AddMember("AngleMax", radar.getAngleMax(), allocator);
-  reply.AddMember("AngleStep", radar.getAngleStep(), allocator);
+  if (0 == lastUpd) { //send setting info
+    reply.AddMember("AngleMin", radar.getAngleMin(), allocator);
+    reply.AddMember("AngleMax", radar.getAngleMax(), allocator);
+    reply.AddMember("AngleStep", radar.getAngleStep(), allocator);
+  }
   rapidjson::Value values(rapidjson::kArrayType);
   //<angle<timestamp,distance>>
   const auto &maps = radar.getMap();
