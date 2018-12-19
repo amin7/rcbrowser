@@ -6,8 +6,6 @@
 using namespace std;
 
 static struct mg_serve_http_opts s_http_server_opts;
-CDCmotor motorL0(2, 3);
-CDCmotor motorR0(1, 0);
 
 CRadar radar { radar_trig_pin, radar_echo_pin, radar_dir_pin_pca };
 
@@ -15,7 +13,7 @@ void ultrasonic0_echo_handler() {
   radar.echo_handler();
 }
 
-pca9685_Servo chasis_camer(pin_chasis_cameraY, 0, 100, pwm_chasis_camera_min, pwm_chasis_camera_max);
+pca9685_Servo chasis_camer(pca_pin_chasis_cameraY, 0, 100, pwm_chasis_camera_min, pwm_chasis_camera_max);
 CHttpCmdHandler http_cmd_handler;
 
 void print(mg_str str) {
@@ -90,6 +88,8 @@ static bool handle_chasisradar(const rapidjson::Document &d, rapidjson::Document
   return true;
 }
 
+CDCmotor motorL0(pca_pin_chasis_motor_l_g, pca_pin_chasis_motor_l_p);
+CDCmotor motorR0(pca_pin_chasis_motor_r_p, pca_pin_chasis_motor_r_g);
 bool handle_wheels(const rapidjson::Document &d, rapidjson::Document &reply) {
   const int16_t wheel_L0 = d["wheel_L0"].GetInt();
   const int16_t wheel_R0 = d["wheel_R0"].GetInt();

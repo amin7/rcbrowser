@@ -10,15 +10,13 @@
 #include <stdint.h>
 
 class CDCmotor {
-  const int pin0;
-  const int pin1;
+  const int pin0_;
+  const int pin1_;
 public:
-  enum {
-    maxPWM = 0xfff,
-    startPWM = (0xfff / 10) // less power not enought to start
-  };
+  static constexpr auto maxPWM = 0xfff + 1;
+  static constexpr auto startPWM = maxPWM / 10; // less power not enought to start
   CDCmotor(int _pin0, int _pin1) :
-      pin0(_pin0), pin1(_pin1) {
+      pin0_(_pin0), pin1_(_pin1) {
   }
   ;
   void init();

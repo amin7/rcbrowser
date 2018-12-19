@@ -13,34 +13,30 @@
 #endif
 #include <iostream>
 #include <string>
-#define _DMSG(arg) std::cout << __FILE__ << ":" << __LINE__ << "  DC[" << pin0 << ":"<< pin1<<"] " <<arg<<std::endl
 
-
+using namespace std;
 void CDCmotor::init() {
-  _DMSG("");
   set(0);
 }
 void CDCmotor::set(int16_t power) {
-  _DMSG("power=" << power);
+  cout << __FILE__ << ":" << __LINE__ << "  DC[" << pin0_ << ":" << pin1_ << "]=" << power << endl;
 
-  auto zeroPin = pin0;
-  auto powerPin = pin1;
-
+  auto pwm_power0 = abs(power) * maxPWM / 100;
+  auto pwm_power1 = decltype(pwm_power0) { 0 };
+  if (maxPWM < pwm_power0) {
+    pwm_power0 = maxPWM;
+  }
+  if (startPWM > pwm_power0) {
+    pwm_power0 = 0;
+  }
   if (0 > power) {
-    zeroPin = pin1;
-    powerPin = pin0;
-    power = -power;
+    pwm_power1 = pwm_power0;
+    pwm_power0 = 0;
   }
-  if (100 < power) {
-    power = 100;
-  }
-  power = power * maxPWM / 100;
-  if (startPWM > power) {
-    _DMSG("less than start " << startPWM);
-    power = 0;
-  }
+
 #ifndef _SIMULATION_
-  pwmWrite(300+ zeroPin,  0);
-  pwmWrite(300+ powerPin, power);
+  pwmWrite(300 + pin0_, pwm_power0);
+  pwmWrite(300 + pin1_, pwm_power1);
 #endif
+
 }

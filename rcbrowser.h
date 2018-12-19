@@ -41,9 +41,14 @@ const auto radar_echo_pin = 21;
 
 constexpr char *home_page = "/driver.html";
 
-constexpr auto pin_chasis_cameraY = 15;
+constexpr auto pca_pin_chasis_cameraY = 15;
 constexpr auto pwm_chasis_camera_min = 350;
 constexpr auto pwm_chasis_camera_max = 550;
+
+constexpr auto pca_pin_chasis_motor_l_g = 2;
+constexpr auto pca_pin_chasis_motor_l_p = 3;
+constexpr auto pca_pin_chasis_motor_r_g = 0;
+constexpr auto pca_pin_chasis_motor_r_p = 1;
 
 
 #endif /* RCBROWSER_H_ */
