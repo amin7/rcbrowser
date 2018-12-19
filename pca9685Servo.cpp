@@ -26,10 +26,10 @@ pca9685_Servo::pca9685_Servo(uint8_t _pin, int16_t _minVal, int16_t _maxVal, uin
 {
 }
 void pca9685_Servo::init(int16_t init_val) {
-  set(init_val);
+  setVal(init_val);
 }
 
-void pca9685_Servo::set(int16_t val) {
+void pca9685_Servo::setVal(int16_t val) {
   std::lock_guard<std::mutex> guard(mu);
   if (val <= minVal) {
     val = minVal;
@@ -37,7 +37,10 @@ void pca9685_Servo::set(int16_t val) {
   if (val >= maxVal) {
     val = maxVal;
   }
-  set_PWM(minPulse + static_cast<int32_t>(maxPulse - minPulse) * (val - minVal) / (maxVal - minVal));
+  if (val_ != val) {
+    val_ = val;
+    set_PWM(minPulse + static_cast<int32_t>(maxPulse - minPulse) * (val - minVal) / (maxVal - minVal));
+  }
 }
 
 void pca9685_Servo::set_PWM(uint8_t pin, uint16_t pulse) {

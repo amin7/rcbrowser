@@ -43,9 +43,8 @@ void CRadar::thread() {
     angle = angle_max;
     angle_up = false;
   }
-  dir_servo.set(angle);
-  std::this_thread::sleep_for(std::chrono::milliseconds(200)); //time for set servo
-
+  dir_servo.setVal(angle);
+  std::this_thread::sleep_for(std::chrono::milliseconds(HC_SR04::MEASURING_ANGLE * dir_servo.angle_time * 2)); //time for set servo
 }
 
 bool CRadar::start() {

@@ -1,6 +1,6 @@
 //http://dmitrybaranovskiy.github.io/raphael/
 //https://dmitrybaranovskiy.github.io/raphael/reference.html
-//	https://mech.fsv.cvut.cz/~stransky/en/software/raphaeltools/
+//https://mech.fsv.cvut.cz/~stransky/en/software/raphaeltools/
 function slider(opts,onchange){
 	opts	= opts|| {};		
 	const slider_id_ = document.getElementById(opts.container);
@@ -45,4 +45,7 @@ function slider(opts,onchange){
 		circ.drag(move, start, end);
 	}
 	this.resize();	
+	this.delete=function(){
+		paper.remove()		
+	}
 }

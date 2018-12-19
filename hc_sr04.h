@@ -19,7 +19,7 @@ class HC_SR04 {
   static void echo_handler_(HC_SR04 *);
 public:
   static const auto MAX_DISTANCE = 4000;
-  static const auto MEASURING_ANGLE = 15; //degre
+  static const auto MEASURING_ANGLE = 5; //degre
   static const auto SOUND_SPEED = 343000; //mm/sec
   HC_SR04(uint8_t _trig, uint8_t _echo) :
       pin_trig_(_trig), pin_echo_(_echo) {

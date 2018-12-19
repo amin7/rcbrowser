@@ -75,18 +75,18 @@ bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
 }
 
 bool handle_status(const rapidjson::Document &d, rapidjson::Document &reply) {
+  auto &allocator = reply.GetAllocator();
+  reply.AddMember("vbat", 8.5, allocator);
   return true;
 }
 
 static bool handle_chasiscamera(const rapidjson::Document &d, rapidjson::Document &reply) {
-  try {
-  const int16_t Y = d["Y"].GetInt();
-  std::cout << "DOM" << "Y" << Y << std::endl;
-
-    chasis_camer.set(Y);
-  } catch (RAPIDJSON_ERROR_CHARTYPE err) {
-  std::cout <<"error" << std::endl;
-}
+  if (d.HasMember("Y")) {
+    const auto y = d["Y"].GetInt();
+    chasis_camer.setVal(y);
+  }
+  auto &allocator = reply.GetAllocator();
+  reply.AddMember("Y", chasis_camer.getVal(), allocator);
   return true;
 }
 
@@ -115,9 +115,9 @@ static bool handle_chasisradar(const rapidjson::Document &d, rapidjson::Document
       }
     }
     rapidjson::Value val(rapidjson::kObjectType);
-    val.AddMember("angle", element.first, allocator);
-    val.AddMember("timestamp", timestamp, allocator);
-    val.AddMember("distance", element.second.second, allocator);
+    val.AddMember("angl", element.first, allocator);
+    val.AddMember("time", timestamp, allocator);
+    val.AddMember("dist", element.second.second, allocator);
     values.PushBack(val, allocator);
   }
   reply.AddMember("radar", values, allocator);

@@ -75,5 +75,8 @@ function Radar(opts){
 				"stroke-width": 1
 			});
 		}	
-	}		
+	}	
+	this.delete=function(){
+		paper.remove()		
+	}
 }

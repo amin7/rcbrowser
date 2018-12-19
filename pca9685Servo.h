@@ -16,12 +16,17 @@ class pca9685_Servo {
   const int16_t maxVal;
   const uint16_t minPulse;
   const uint16_t maxPulse;
+  int16_t val_;
 public:
-  static const auto maxPWM = 0xfff + 1;
+  static constexpr auto maxPWM = 0xfff + 1;
+  const uint16_t angle_time = .12 * 1000 / 60; // time for rotate on 1 degry SG90
   pca9685_Servo(uint8_t _pin);
   pca9685_Servo(uint8_t _pin, int16_t _minVal, int16_t _maxVal, uint16_t _minPulse, uint16_t _maxPulse);
   void init(int16_t init_val = 0);
-  void set(int16_t val);
+  void setVal(int16_t val);
+  int16_t getVal() const {
+    return val_;
+  }
   void set_PWM(uint16_t pulse) {
     set_PWM(pin_, pulse);
   }

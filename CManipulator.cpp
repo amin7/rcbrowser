@@ -19,8 +19,8 @@ void CManipulator::init() {
 }
 
 void CManipulator::set_absolute(int16_t _x, int16_t _y, int16_t _z) {
-  servo_base.set(_x);
-  servo_l.set(_y);
-  servo_r.set(_z);
+  servo_base.setVal(_x);
+  servo_l.setVal(_y);
+  servo_r.setVal(_z);
 }
 
