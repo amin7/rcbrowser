@@ -1,4 +1,6 @@
-used
+git@github.com:amin7/rcbrowser.git
+
+[used]
 git clone https://github.com/cesanta/mongoose.git
 git clone https://github.com/Tencent/rapidjson.git
 
@@ -18,6 +20,7 @@ sudo apt-get install uv4l-webrtc
 https://www.instructables.com/id/Raspberry-Pi-Video-Streaming/
 
 [pin]
+http://pi4j.com/pins/model-zerow-rev1.html
 http://wiringpi.com
 git clone https://github.com/Reinbert/pca9685.git
 sudo make install

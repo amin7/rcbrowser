@@ -2,41 +2,12 @@
  * Copyright (c) 2014 Cesanta Software Limited
  * All rights reserved
  */
-
-#include <iostream>
-#include <stdint.h>
-#include <thread>
-#include <chrono>
-#include <string>
-#include "mongoose.h"
-#include "rapidjson/reader.h"
-#include "rapidjson/document.h"     // rapidjson's DOM-style API
-#include "rapidjson/stringbuffer.h"
-#include <rapidjson/writer.h>
-#ifndef _SIMULATION_
-#include <wiringPi.h>
-#include "pca9685.h"
-#endif
-#include "CDCmotor.h"
-#include "pca9685Servo.h"
-#include <map>
-#include <unistd.h>
-#include <libgen.h>
-#include "CLI11.hpp"
-#include "demonize.h"
-#include "hc_sr04.h"
-#include "CManipulator.h"
-#include "CRadar.h"
-#include "CHttpCmdHandler.h"
-
+#include "rcbrowser.h"
+using namespace std;
 
 static struct mg_serve_http_opts s_http_server_opts;
 CDCmotor motorL0(2, 3);
 CDCmotor motorR0(1, 0);
-auto frontend_home = static_cast<string>("");
-const auto radar_dir_pin_pca = 14;
-const auto radar_trig_pin = 20;
-const auto radar_echo_pin = 21;
 
 CRadar radar { radar_trig_pin, radar_echo_pin, radar_dir_pin_pca };
 
@@ -44,11 +15,6 @@ void ultrasonic0_echo_handler() {
   radar.echo_handler();
 }
 
-constexpr char *home_page = "/driver.html";
-
-constexpr auto pin_chasis_cameraY = 15;
-constexpr auto pwm_chasis_camera_min = 350;
-constexpr auto pwm_chasis_camera_max = 550;
 pca9685_Servo chasis_camer(pin_chasis_cameraY, 0, 100, pwm_chasis_camera_min, pwm_chasis_camera_max);
 CHttpCmdHandler http_cmd_handler;
 
@@ -56,10 +22,10 @@ void print(mg_str str) {
   const char *t = str.p;
   size_t len = str.len;
   while (len--) {
-    std::cout << *t;
+    cout << *t;
     t++;
   }
-  std::cout << std::endl;
+  cout << endl;
 }
 
 
@@ -129,7 +95,7 @@ bool handle_wheels(const rapidjson::Document &d, rapidjson::Document &reply) {
   const int16_t wheel_R0 = d["wheel_R0"].GetInt();
 
   cout << "wheel=" << wheel_L0 << ":" << wheel_R0;
-  cout << std::endl;
+  cout << endl;
   motorL0.set(wheel_L0);
   motorR0.set(wheel_R0);
   return true;
@@ -168,9 +134,9 @@ void command_handler(struct mg_connection *nc, struct http_message *hm, const CH
   part_reply.SetObject();
   do {
     print(hm->body);
-    std::string json;
+    string json;
     json.append(hm->body.p, hm->body.len);
-    std::cout << "json=" << json << std::endl;
+    cout << "json=" << json << endl;
     if (json.length()) {
       if (part_cmd.Parse(json.c_str()).HasParseError()) {
         break;
@@ -185,7 +151,7 @@ void command_handler(struct mg_connection *nc, struct http_message *hm, const CH
       rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
       part_reply.Accept(writer);
       c_reply = buffer.GetString();
-      std::cout << "reply=" << c_reply << std::endl;
+      cout << "reply=" << c_reply << endl;
       const auto reply_sz = strlen(c_reply);
       mg_send_head(nc, status_code, reply_sz, nullptr);
       mg_send(nc, c_reply, reply_sz);
@@ -283,7 +249,7 @@ int main(int argc, char *argv[]) {
 
   init();
 
-  std::cout << "Number of threads = " << std::thread::hardware_concurrency() << std::endl;
+  cout << "Number of threads = " << thread::hardware_concurrency() << endl;
   struct mg_mgr mgr;
   struct mg_connection *nc;
   struct mg_bind_opts bind_opts;

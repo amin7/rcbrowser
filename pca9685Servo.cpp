@@ -14,7 +14,8 @@
 #include <string>
 #include <mutex>
 
-std::mutex mu;
+using namespace std;
+mutex mu;
 
 pca9685_Servo::pca9685_Servo(uint8_t _pin) :
     pin_(_pin), minVal(0), maxVal(100), minPulse(0), maxPulse(2.5 * (50.0f * maxPWM / 1000))
@@ -29,8 +30,12 @@ void pca9685_Servo::init(int16_t init_val) {
   setVal(init_val);
 }
 
+uint16_t pca9685_Servo::val_to_pwm(int16_t val) const {
+  return minPulse + static_cast<int32_t>(maxPulse - minPulse) * (val - minVal) / (maxVal - minVal);
+}
+
 void pca9685_Servo::setVal(int16_t val) {
-  std::lock_guard<std::mutex> guard(mu);
+  lock_guard<mutex> guard(mu);
   if (val <= minVal) {
     val = minVal;
   }
@@ -39,7 +44,7 @@ void pca9685_Servo::setVal(int16_t val) {
   }
   if (val_ != val) {
     val_ = val;
-    set_PWM(minPulse + static_cast<int32_t>(maxPulse - minPulse) * (val - minVal) / (maxVal - minVal));
+    set_PWM(val_to_pwm(val));
   }
 }
 
@@ -49,8 +54,8 @@ void pca9685_Servo::set_PWM(uint8_t pin, uint16_t pulse) {
     pulse = maxPWM;
   }
 #ifdef LOG_INFO
-  std::cout << __FILE__ << ":" << __LINE__ << "(" << __FUNCTION__ << ")  pca[" << static_cast<int>(pin) << "]="
-      << pulse << std::endl;
+  cout << __FILE__ << ":" << __LINE__ << "(" << __FUNCTION__ << ")  pca[" << static_cast<int>(pin) << "]="
+  << pulse << endl;
 #endif
 #ifndef _SIMULATION_
   pwmWrite(300 + pin, pulse);
