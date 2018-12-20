@@ -206,7 +206,9 @@ void init() {
   manipulator.init();
   radar.start();
 }
+void MPU6050_dmp_init() {
 
+}
 void MPU6050_main() {
   cout << "MPU6050 3-axis acceleromter example program" << endl;
   MPU6050 accelgyro;

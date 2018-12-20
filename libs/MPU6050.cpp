@@ -33,8 +33,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ===============================================
 */
-
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <thread>
+#include <chrono>
 #include "MPU6050.h"
+
+#define delay(ms) this_thread::sleep_for(chrono::milliseconds(ms));
+using namespace std;
+#define PI M_PI
+#include "MPU6050_6Axis_MotionApps20.h"
 
 /** Specific address constructor.
  * @param address I2C address, uses default I2C address if none is specified
