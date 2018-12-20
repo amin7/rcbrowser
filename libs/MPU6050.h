@@ -51,7 +51,7 @@ THE SOFTWARE.
 //#define pgm_read_float(x) (*(x))
 //#define PSTR(STR) STR
 #endif
-
+#include "MPU6050_6Axis_MotionApps20.h"
 
 #define MPU6050_ADDRESS_AD0_LOW     0x68 // address pin low (GND), default for InvenSense evaluation board
 #define MPU6050_ADDRESS_AD0_HIGH    0x69 // address pin high (VCC)
@@ -1020,7 +1020,8 @@ class MPU6050 {
         #endif
 
     private:
-        uint8_t devAddr;
+  const uint8_t devAddr_;
+  int FD_ = -1;
         uint8_t buffer[14];
     #if defined(MPU6050_INCLUDE_DMP_MOTIONAPPS20) or defined(MPU6050_INCLUDE_DMP_MOTIONAPPS41)
         uint8_t *dmpPacketBuffer;

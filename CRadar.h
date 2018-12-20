@@ -19,7 +19,7 @@
 using surround_t=std::map<int16_t, std::pair<std::chrono::milliseconds, int32_t>>;
 class CRadar {
   HC_SR04 hc_sr04;
-  void thread();
+  void thread_function();
   std::atomic<bool> execute_ { false };
   std::thread thd_;
   const int16_t angle_min = -90;

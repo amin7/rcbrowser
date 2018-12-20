@@ -19,7 +19,7 @@ CRadar::CRadar(uint8_t _trig, uint8_t _echo, uint8_t _direction) :
     dir_servo(_direction, angle_min, angle_max, pwm_min, pwm_max) {
 }
 
-void CRadar::thread() {
+void CRadar::thread_function() {
   map_mu_.lock();
   surrond_[angle]= {
     chrono::duration_cast< chrono::milliseconds >(chrono::system_clock::now().time_since_epoch()),
@@ -54,7 +54,7 @@ bool CRadar::start() {
   execute_.store(true, std::memory_order_release);
   thd_ = std::thread([this] {
     while (execute_.load(std::memory_order_acquire)) {
-      this->thread();
+      this->thread_function();
     }
   });
   return true;

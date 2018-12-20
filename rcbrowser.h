@@ -32,7 +32,7 @@
 #include "CManipulator.h"
 #include "CRadar.h"
 #include "CHttpCmdHandler.h"
-
+#include "libs/MPU6050.h"
 
 auto frontend_home = static_cast<string>("");
 const auto radar_dir_pin_pca = 14;

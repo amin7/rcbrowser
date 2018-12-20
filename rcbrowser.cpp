@@ -207,6 +207,53 @@ void init() {
   radar.start();
 }
 
+void MPU6050_main() {
+  cout << "MPU6050 3-axis acceleromter example program" << endl;
+  MPU6050 accelgyro;
+
+  int16_t ax, ay, az;
+  int16_t gx, gy, gz;
+  if (accelgyro.testConnection())
+    cout << "MPU6050 connection test successful" << endl;
+  else {
+    cerr << "MPU6050 connection test failed! something maybe wrong, continuing anyway though ..." << endl;
+    return;
+  }
+  accelgyro.initialize();
+  // use the code below to change accel/gyro offset values
+  /*
+   printf("Updating internal sensor offsets...\n");
+   // -76  -2359 1688  0 0 0
+   printf("%i \t %i \t %i \t %i \t %i \t %i\n",
+   accelgyro.getXAccelOffset(),
+   accelgyro.getYAccelOffset(),
+   accelgyro.getZAccelOffset(),
+   accelgyro.getXGyroOffset(),
+   accelgyro.getYGyroOffset(),
+   accelgyro.getZGyroOffset());
+   accelgyro.setXGyroOffset(220);
+   accelgyro.setYGyroOffset(76);
+   accelgyro.setZGyroOffset(-85);
+   printf("%i \t %i \t %i \t %i \t %i \t %i\n",
+   accelgyro.getXAccelOffset(),
+   accelgyro.getYAccelOffset(),
+   accelgyro.getZAccelOffset(),
+   accelgyro.getXGyroOffset(),
+   accelgyro.getYGyroOffset(),
+   accelgyro.getZGyroOffset());
+   */
+
+  cout << endl;
+  cout << "  ax \t ay \t az \t gx \t gy \t gz:" << endl;
+
+  while (true) {
+    accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+    cout << ax << ay << az << gx << gy << gz << endl;
+
+    this_thread::sleep_for(chrono::milliseconds(100));
+  }
+}
+
 int main(int argc, char *argv[]) {
   CLI::App app { "rc browser" };
   bool is_demon_mode;
@@ -250,6 +297,8 @@ int main(int argc, char *argv[]) {
   init();
 
   cout << "Number of threads = " << thread::hardware_concurrency() << endl;
+  std::thread(MPU6050_main);
+
   struct mg_mgr mgr;
   struct mg_connection *nc;
   struct mg_bind_opts bind_opts;

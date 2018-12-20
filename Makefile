@@ -9,8 +9,8 @@ MODULE_CFLAGS=-DMG_DISABLE_DAV_AUTH -DMG_ENABLE_FAKE_DAVLOCK
 
 SOURCES = rcbrowser.cpp
 SOURCES += ./libs/mongoose.c
-#SOURCES += ./libs/I2Cdev.cpp
-#SOURCES += ./libs/MPU6050.cpp
+SOURCES += ./libs/I2Cdev.cpp
+SOURCES += ./libs/MPU6050.cpp
 SOURCES += CDCmotor.cpp
 SOURCES += pca9685Servo.cpp
 SOURCES += hc_sr04.cpp
