@@ -100,12 +100,14 @@ THE SOFTWARE.
 // after moving string constants to flash memory storage using the F()
 // compiler macro (Arduino IDE 1.0+ required).
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
-    #define DEBUG_PRINT(x) Serial.print(x)
-    #define DEBUG_PRINTF(x, y) Serial.print(x, y)
-    #define DEBUG_PRINTLN(x) Serial.println(x)
-    #define DEBUG_PRINTLNF(x, y) Serial.println(x, y)
+#include <iostream>
+#define DEBUG_PRINT(x) std::cout<<(x)
+#define DEBUG_PRINTF(x, y)
+#define DEBUG_PRINTLN(x) std::cout<<(x)<<std::endl
+#define DEBUG_PRINTLNF(x, y)
+#define F(x) x
 #else
     #define DEBUG_PRINT(x)
     #define DEBUG_PRINTF(x, y)
@@ -329,9 +331,14 @@ const unsigned char dmpUpdates[MPU6050_DMP_UPDATES_SIZE] PROGMEM = {
 uint8_t MPU6050::dmpInitialize() {
     // reset device
     DEBUG_PRINTLN(F("\n\nResetting MPU6050..."));
-    reset();
-    delay(30); // wait after reset
-
+  reset();
+  delay(600); // wait after reset
+  if (testConnection())
+    cout << "MPU6050 connection test successful" << endl;
+  else {
+    cerr << "MPU6050 connection test failed! something maybe wrong, continuing anyway though ..." << endl;
+    return 1;
+  }
     // enable sleep mode and wake cycle
     /*Serial.println(F("Enabling sleep mode..."));
     setSleepEnabled(true);
@@ -348,43 +355,36 @@ uint8_t MPU6050::dmpInitialize() {
     DEBUG_PRINTLN(F("Selecting memory byte 6..."));
     setMemoryStartAddress(0x06);
     DEBUG_PRINTLN(F("Checking hardware revision..."));
-    DEBUG_PRINT(F("Revision @ user[16][6] = "));
-    DEBUG_PRINTLNF(readMemoryByte(), HEX);
+  cout << "Revision @ user[16][6] = " << static_cast<int>(readMemoryByte()) << endl;
     DEBUG_PRINTLN(F("Resetting memory bank selection to 0..."));
     setMemoryBank(0, false, false);
 
     // check OTP bank valid
-    DEBUG_PRINTLN(F("Reading OTP bank valid flag..."));
-    DEBUG_PRINT(F("OTP bank is "));
-    DEBUG_PRINTLN(getOTPBankValid() ? F("valid!") : F("invalid!"));
+  cout << "Reading OTP bank valid flag..." << endl;
+  cout << "OTP bank is " << (getOTPBankValid() ? "valid!" : "invalid!") << endl;
 
     // get X/Y/Z gyro offsets
-    DEBUG_PRINTLN(F("Reading gyro offset TC values..."));
-    int8_t xgOffsetTC = getXGyroOffsetTC();
-    int8_t ygOffsetTC = getYGyroOffsetTC();
-    int8_t zgOffsetTC = getZGyroOffsetTC();
-    DEBUG_PRINT(F("X gyro offset = "));
-    DEBUG_PRINTLN(xgOffsetTC);
-    DEBUG_PRINT(F("Y gyro offset = "));
-    DEBUG_PRINTLN(ygOffsetTC);
-    DEBUG_PRINT(F("Z gyro offset = "));
-    DEBUG_PRINTLN(zgOffsetTC);
+  cout << "Reading gyro offset TC values..." << endl;
+  const auto xgOffsetTC = getXGyroOffsetTC();
+  const auto ygOffsetTC = getYGyroOffsetTC();
+  const auto zgOffsetTC = getZGyroOffsetTC();
+  cout << "x gyro offset = " << static_cast<int>(xgOffsetTC) << endl;
+  cout << "y gyro offset = " << static_cast<int>(ygOffsetTC) << endl;
+  cout << "z gyro offset = " << static_cast<int>(zgOffsetTC) << endl;
 
     // setup weird slave stuff (?)
-    DEBUG_PRINTLN(F("Setting slave 0 address to 0x7F..."));
-    setSlaveAddress(0, 0x7F);
-    DEBUG_PRINTLN(F("Disabling I2C Master mode..."));
-    setI2CMasterModeEnabled(false);
-    DEBUG_PRINTLN(F("Setting slave 0 address to 0x68 (self)..."));
-    setSlaveAddress(0, 0x68);
-    DEBUG_PRINTLN(F("Resetting I2C Master control..."));
-    resetI2CMaster();
-    delay(20);
+//    DEBUG_PRINTLN(F("Setting slave 0 address to 0x7F..."));
+//    setSlaveAddress(0, 0x7F);
+//    DEBUG_PRINTLN(F("Disabling I2C Master mode..."));
+//    setI2CMasterModeEnabled(false);
+//    DEBUG_PRINTLN(F("Setting slave 0 address to 0x68 (self)..."));
+//    setSlaveAddress(0, 0x68);
+//    DEBUG_PRINTLN(F("Resetting I2C Master control..."));
+//    resetI2CMaster();
+//    delay(20);
 
     // load DMP code into memory banks
-    DEBUG_PRINT(F("Writing DMP code to MPU memory banks ("));
-    DEBUG_PRINT(MPU6050_DMP_CODE_SIZE);
-    DEBUG_PRINTLN(F(" bytes)"));
+  cout << "Writing DMP code to MPU memory banks (" << MPU6050_DMP_CODE_SIZE << " bytes)" << endl;
     if (writeProgMemoryBlock(dmpMemory, MPU6050_DMP_CODE_SIZE)) {
         DEBUG_PRINTLN(F("Success! DMP code written and verified."));
 

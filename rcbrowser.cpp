@@ -206,15 +206,33 @@ void init() {
   manipulator.init();
   radar.start();
 }
-void MPU6050_dmp_init() {
+void MPU6050_dmp() {
+  cout << "MPU6050_dmp" << endl;
+  MPU6050 mpu;
+  mpu.setup();
+  mpu.initialize();
+  const auto dmpInitializeState = mpu.dmpInitialize();
+  if (dmpInitializeState) {
+    cout << "dmp init err=" << static_cast<int>(dmpInitializeState) << endl;
+    return; //eeror;
+  }
+  mpu.setXGyroOffset(220);
+  mpu.setYGyroOffset(76);
+  mpu.setZGyroOffset(-85);
+  mpu.setZAccelOffset(1788);
+
+  mpu.setDMPEnabled(true);
 
 }
+
 void MPU6050_main() {
   cout << "MPU6050 3-axis acceleromter example program" << endl;
   MPU6050 accelgyro;
+  accelgyro.setup();
 
   int16_t ax, ay, az;
   int16_t gx, gy, gz;
+  cout << "ID=" << static_cast<int>(accelgyro.getDeviceID()) << endl;
   if (accelgyro.testConnection())
     cout << "MPU6050 connection test successful" << endl;
   else {
@@ -246,11 +264,11 @@ void MPU6050_main() {
    */
 
   cout << endl;
-  cout << "  ax \t ay \t az \t gx \t gy \t gz:" << endl;
+  cout << "  ax \t ay \t az \t gx \t gy \t gz" << endl;
 
   while (true) {
     accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-    cout << ax << ay << az << gx << gy << gz << endl;
+    cout << ax << "\t" << ay << "\t" << az << "\t" << gx << "\t" << gy << "\t" << gz << endl;
 
     this_thread::sleep_for(chrono::milliseconds(100));
   }
@@ -299,7 +317,7 @@ int main(int argc, char *argv[]) {
   init();
 
   cout << "Number of threads = " << thread::hardware_concurrency() << endl;
-  std::thread(MPU6050_main);
+  auto gyro_thread = std::thread(MPU6050_dmp);
 
   struct mg_mgr mgr;
   struct mg_connection *nc;

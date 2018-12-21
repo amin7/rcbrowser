@@ -37,6 +37,7 @@ THE SOFTWARE.
 #include <cmath>
 #include <thread>
 #include <chrono>
+#include <array>
 #include "MPU6050.h"
 
 #define delay(ms) this_thread::sleep_for(chrono::milliseconds(ms));
@@ -61,8 +62,11 @@ MPU6050::MPU6050(uint8_t address) :
  * the clock source to use the X Gyro for reference, which is slightly better than
  * the default internal clock source.
  */
-void MPU6050::initialize() {
+
+void MPU6050::setup() {
   FD_ = I2Cdev::initialize(devAddr_);
+}
+void MPU6050::initialize() {
     setClockSource(MPU6050_CLOCK_PLL_XGYRO);
     setFullScaleGyroRange(MPU6050_GYRO_FS_250);
     setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
@@ -3039,12 +3043,8 @@ bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
     setMemoryBank(bank);
     setMemoryStartAddress(address);
     uint8_t chunkSize;
-    uint8_t *verifyBuffer=0;
-    uint8_t *progBuffer=0;
-    uint16_t i;
-    uint8_t j;
-    if (verify) verifyBuffer = (uint8_t *)malloc(MPU6050_DMP_MEMORY_CHUNK_SIZE);
-    if (useProgMem) progBuffer = (uint8_t *)malloc(MPU6050_DMP_MEMORY_CHUNK_SIZE);
+  uint8_t verifyBuffer[MPU6050_DMP_MEMORY_CHUNK_SIZE];
+  uint16_t i;
     for (i = 0; i < dataSize;) {
         // determine correct chunk size according to bank position and data size
         chunkSize = MPU6050_DMP_MEMORY_CHUNK_SIZE;
@@ -3055,44 +3055,25 @@ bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
         // make sure this chunk doesn't go past the bank boundary (256 bytes)
         if (chunkSize > 256 - address) chunkSize = 256 - address;
         
-        if (useProgMem) {
             // write the chunk of data as specified
-            for (j = 0; j < chunkSize; j++) progBuffer[j] = pgm_read_byte(data + i + j);
-        } else {
-            // write the chunk of data as specified
-            progBuffer = (uint8_t *)data + i;
-        }
+    const auto progBuffer = (uint8_t *) data + i;
 
     I2Cdev::writeBytes(FD_, MPU6050_RA_MEM_R_W, chunkSize, progBuffer);
 
         // verify data if needed
-        if (verify && verifyBuffer) {
+    if (verify) {
             setMemoryBank(bank);
             setMemoryStartAddress(address);
       I2Cdev::readBytes(FD_, MPU6050_RA_MEM_R_W, chunkSize, verifyBuffer);
-            if (memcmp(progBuffer, verifyBuffer, chunkSize) != 0) {
-                /*Serial.print("Block write verification error, bank ");
-                Serial.print(bank, DEC);
-                Serial.print(", address ");
-                Serial.print(address, DEC);
-                Serial.print("!\nExpected:");
-                for (j = 0; j < chunkSize; j++) {
-                    Serial.print(" 0x");
-                    if (progBuffer[j] < 16) Serial.print("0");
-                    Serial.print(progBuffer[j], HEX);
-                }
-                Serial.print("\nReceived:");
-                for (uint8_t j = 0; j < chunkSize; j++) {
-                    Serial.print(" 0x");
-                    if (verifyBuffer[i + j] < 16) Serial.print("0");
-                    Serial.print(verifyBuffer[i + j], HEX);
-                }
-                Serial.print("\n");*/
-                free(verifyBuffer);
-                if (useProgMem) free(progBuffer);
-                return false; // uh oh.
-            }
+      if (memcmp(progBuffer, verifyBuffer, chunkSize) != 0) {
+        cout << "Block write verification error, bank " <<
+            static_cast<int>(bank) << ", address " << static_cast<int>(address) << "!\nExpected:" << endl;
+        for (auto j = 0; j < chunkSize; j++) {
+          cout << static_cast<int>(j) << "<-" << static_cast<int>(progBuffer[j]) << " ->" << static_cast<int>(verifyBuffer[i + j]) << endl;
         }
+        return false; // uh oh.
+      }
+    }
 
         // increase byte index by [chunkSize]
         i += chunkSize;
@@ -3107,8 +3088,6 @@ bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
             setMemoryStartAddress(address);
         }
     }
-    if (verify) free(verifyBuffer);
-    if (useProgMem) free(progBuffer);
     return true;
 }
 bool MPU6050::writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify) {
