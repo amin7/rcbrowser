@@ -1,5 +1,7 @@
 git@github.com:amin7/rcbrowser.git
 
+sudo apt-get install libi2c-dev
+
 [used]
 git clone https://github.com/cesanta/mongoose.git
 git clone https://github.com/Tencent/rapidjson.git

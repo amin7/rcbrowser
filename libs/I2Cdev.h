@@ -38,31 +38,26 @@ THE SOFTWARE.
 #include <stdlib.h> // required for MPU6060
 #include <string.h> // required for MPU6060
 
-#define set_I2C_pins  false  
-/* used to boolean for setting RPi I2C pins P1-03 (SDA) and P1-05 (SCL) to alternate function ALT0, which enables those pins for I2C interface. 
-   setI2Cpin should be false, if the I2C are already configured in alt mode ... */
-
-#define i2c_baudrate 400000
-//uint32_t i2c_baudrate = 400000 ; //400 kHz, 
 
 class I2Cdev {
+  int fd_ = -1;
 public:
 
-  static int initialize(uint8_t i2cAddress);
+  int initialize(uint8_t i2cAddress);
 
-  static bool readBit(int fd, uint8_t regAddr, uint8_t bitNum, uint8_t *data);
-  static bool readBits(int fd, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data);
+  bool readBit(uint8_t regAddr, uint8_t bitNum, uint8_t *data);
+  bool readBits(uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data);
 
-  static bool readByte(int fd, uint8_t regAddr, uint8_t *data);
-  static bool readWord(int fd, uint8_t regAddr, uint16_t *data);
-  static bool readBytes(int fd, uint8_t regAddr, uint8_t length, uint8_t *data);
+  bool readByte(uint8_t regAddr, uint8_t *data);
+  bool readWord(uint8_t regAddr, uint16_t *data);
+  bool readBytes(uint8_t regAddr, uint8_t length, uint8_t *data);
 
-  static bool writeBit(int fd, uint8_t regAddr, uint8_t bitNum, bool data);
-  static bool writeBits(int fd, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
+  bool writeBit(uint8_t regAddr, uint8_t bitNum, bool data);
+  bool writeBits(uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
 
-  static bool writeByte(int fd, uint8_t regAddr, uint8_t data);
-  static bool writeWord(int fd, uint8_t regAddr, uint16_t data);
-  static bool writeBytes(int fd, uint8_t regAddr, uint8_t length, uint8_t *data);
+  bool writeByte(uint8_t regAddr, uint8_t data);
+  bool writeWord(uint8_t regAddr, uint16_t data);
+  bool writeBytes(uint8_t regAddr, uint8_t length, uint8_t *data);
 };
 
 #endif /* _I2CDEV_H_ */

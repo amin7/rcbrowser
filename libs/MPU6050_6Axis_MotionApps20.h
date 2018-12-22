@@ -134,7 +134,8 @@ THE SOFTWARE.
 // second though)
 const unsigned char dmpMemory[MPU6050_DMP_CODE_SIZE] PROGMEM = {
     // bank 0, 256 bytes
-    0xFB, 0x00, 0x00, 0x3E, 0x00, 0x0B, 0x00, 0x36, 0x00, 0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00,
+    //0xFB, 0x00, 0x00, 0x3E, 0x00, 0x0B, 0x00, 0x36, 0x00, 0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00,
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
     0x00, 0x65, 0x00, 0x54, 0xFF, 0xEF, 0x00, 0x00, 0xFA, 0x80, 0x00, 0x0B, 0x12, 0x82, 0x00, 0x01,
     0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x28, 0x00, 0x00, 0xFF, 0xFF, 0x45, 0x81, 0xFF, 0xFF, 0xFA, 0x72, 0x00, 0x00, 0x00, 0x00,
@@ -339,31 +340,32 @@ uint8_t MPU6050::dmpInitialize() {
     cerr << "MPU6050 connection test failed! something maybe wrong, continuing anyway though ..." << endl;
     return 1;
   }
-    // enable sleep mode and wake cycle
-    /*Serial.println(F("Enabling sleep mode..."));
-    setSleepEnabled(true);
-    Serial.println(F("Enabling wake cycle..."));
-    setWakeCycleEnabled(true);*/
+  cout << "getDMPEnabled=" << getDMPEnabled() << endl;
+  // enable sleep mode and wake cycle
+  /*Serial.println(F("Enabling sleep mode..."));
+   setSleepEnabled(true);
+   Serial.println(F("Enabling wake cycle..."));
+   setWakeCycleEnabled(true);*/
 
-    // disable sleep mode
-    DEBUG_PRINTLN(F("Disabling sleep mode..."));
-    setSleepEnabled(false);
+  // disable sleep mode
+  DEBUG_PRINTLN(F("Disabling sleep mode..."));
+  setSleepEnabled(false);
 
-    // get MPU hardware revision
-    DEBUG_PRINTLN(F("Selecting user bank 16..."));
-    setMemoryBank(0x10, true, true);
-    DEBUG_PRINTLN(F("Selecting memory byte 6..."));
-    setMemoryStartAddress(0x06);
-    DEBUG_PRINTLN(F("Checking hardware revision..."));
+  // get MPU hardware revision
+  DEBUG_PRINTLN(F("Selecting user bank 16..."));
+  setMemoryBank(0x10, true, true);
+  DEBUG_PRINTLN(F("Selecting memory byte 6..."));
+  setMemoryStartAddress(0x06);
+  DEBUG_PRINTLN(F("Checking hardware revision..."));
   cout << "Revision @ user[16][6] = " << static_cast<int>(readMemoryByte()) << endl;
-    DEBUG_PRINTLN(F("Resetting memory bank selection to 0..."));
-    setMemoryBank(0, false, false);
+  DEBUG_PRINTLN(F("Resetting memory bank selection to 0..."));
+  setMemoryBank(0, false, false);
 
-    // check OTP bank valid
+  // check OTP bank valid
   cout << "Reading OTP bank valid flag..." << endl;
   cout << "OTP bank is " << (getOTPBankValid() ? "valid!" : "invalid!") << endl;
 
-    // get X/Y/Z gyro offsets
+  // get X/Y/Z gyro offsets
   cout << "Reading gyro offset TC values..." << endl;
   const auto xgOffsetTC = getXGyroOffsetTC();
   const auto ygOffsetTC = getYGyroOffsetTC();
@@ -372,16 +374,6 @@ uint8_t MPU6050::dmpInitialize() {
   cout << "y gyro offset = " << static_cast<int>(ygOffsetTC) << endl;
   cout << "z gyro offset = " << static_cast<int>(zgOffsetTC) << endl;
 
-    // setup weird slave stuff (?)
-//    DEBUG_PRINTLN(F("Setting slave 0 address to 0x7F..."));
-//    setSlaveAddress(0, 0x7F);
-//    DEBUG_PRINTLN(F("Disabling I2C Master mode..."));
-//    setI2CMasterModeEnabled(false);
-//    DEBUG_PRINTLN(F("Setting slave 0 address to 0x68 (self)..."));
-//    setSlaveAddress(0, 0x68);
-//    DEBUG_PRINTLN(F("Resetting I2C Master control..."));
-//    resetI2CMaster();
-//    delay(20);
 
     // load DMP code into memory banks
   cout << "Writing DMP code to MPU memory banks (" << MPU6050_DMP_CODE_SIZE << " bytes)" << endl;
