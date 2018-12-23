@@ -38,6 +38,7 @@ CFLAGS += -static
 endif
  
 OBJ_DIR = ./obj/
+
 MKDIR_P = mkdir -p
 
 
@@ -45,12 +46,14 @@ all: $(PROG)
 
 $(OBJ_DIR):
 	${MKDIR_P} ${OBJ_DIR}
+$(SOURCES): ${OBJ_DIR}
+	$(CXX) $(CFLAGS) -c  $@ -o $(OBJ_DIR)$(basename $(notdir $@)).o
 
 $(PROG): $(OBJ_DIR) $(SOURCES)
-	$(CXX) $(SOURCES) -o $(OBJ_DIR)$@ $(CFLAGS)
+	$(CXX) $(wildcard $(OBJ_DIR)*.o) -o $(OBJ_DIR)$@ $(CFLAGS)
 
 $(PROG).exe: $(OBJ_DIR) $(SOURCES)
-	cl $(SOURCES) /I../.. /MD /Fe$(OBJ_DIR)$@
+	cl /I../.. /MD /Fe$(OBJ_DIR)$@
 
 clean:
 	rm -rf $(OBJ_DIR)
