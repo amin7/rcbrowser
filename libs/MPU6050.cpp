@@ -3023,7 +3023,7 @@ bool MPU6050::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank, ui
         if (chunkSize > 256 - address) chunkSize = 256 - address;
 
         // read the chunk of data as specified
-    if (i2c_dev.readBytes( MPU6050_RA_MEM_R_W, chunkSize, data + i)) {
+    if (!i2c_dev.readBytes( MPU6050_RA_MEM_R_W, chunkSize, data + i)) {
       return false;
     }
         

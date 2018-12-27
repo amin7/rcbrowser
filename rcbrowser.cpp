@@ -283,7 +283,7 @@ int main(int argc, char *argv[]) {
   string http_port = "8000";
   app.add_flag("-d", is_demon_mode, "demon mode");
   app.add_option("-f", frontend_folder, "frontend_folder")->check(CLI::ExistingDirectory);
-  app.add_option("-p", http_port, "http_port")->check(CLI::ExistingDirectory);
+  app.add_option("-p", http_port, "http_port");
 
   CLI11_PARSE(app, argc, argv);
 

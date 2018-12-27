@@ -94,20 +94,13 @@ bool I2Cdev::readByte(uint8_t regAddr, uint8_t *data) {
  * @return I2C_TransferReturn_TypeDef http://downloads.energymicro.com/documentation/doxygen/group__I2C.html
  */
 bool I2Cdev::readBytes(uint8_t regAddr, uint8_t length, uint8_t *data) {
-//  if (i2c_smbus_access(fd_, I2C_SMBUS_READ, regAddr, length + 1, data)) {
-//    return false;
-//  }
-  return true;
+  const auto res = i2c_smbus_read_i2c_block_data(fd_, regAddr, length, data);
+  return (res < 0) ? false : true;
 }
 
 bool I2Cdev::writeBytes(uint8_t regAddr, uint8_t length, uint8_t *data) {
   const auto res = i2c_smbus_write_block_data(fd_, regAddr, length, data);
   return (res < 0) ? false : true;
-//  wiringPiI2CWrite(fd_, regAddr);
-//  while (length--) {
-//    wiringPiI2CWrite(fd_, *data);
-//    data++;
-//  }
 }
 /** write a single bit in an 8-bit device register.
  * @param devAddr I2C slave device address
