@@ -2711,8 +2711,9 @@ void MPU6050::setStandbyZGyroEnabled(bool enabled) {
  * @return Current FIFO buffer size
  */
 uint16_t MPU6050::getFIFOCount() {
-  i2c_dev.readBytes( MPU6050_RA_FIFO_COUNTH, 2, buffer);
-    return (((uint16_t)buffer[0]) << 8) | buffer[1];
+  uint16_t count;
+  i2c_dev.readWord( MPU6050_RA_FIFO_COUNTH, &count);
+  return (count << 8) | (count >> 8);
 }
 
 // FIFO_R_W register
@@ -2746,12 +2747,18 @@ uint8_t MPU6050::getFIFOByte() {
   i2c_dev.readByte( MPU6050_RA_FIFO_R_W, buffer);
     return buffer[0];
 }
+constexpr auto I2C_SMBUS_BLOCK_MAX = 32;
 void MPU6050::getFIFOBytes(uint8_t *data, uint8_t length) {
-    if(length > 0){
-    i2c_dev.readBytes( MPU6050_RA_FIFO_R_W, length, data);
-    } else {
-    	*data = 0;
+  while (length) {
+    auto chank = length;
+    if (I2C_SMBUS_BLOCK_MAX < chank) {
+      chank = I2C_SMBUS_BLOCK_MAX;
     }
+    i2c_dev.readBytes( MPU6050_RA_FIFO_R_W, chank, data);
+    length -= chank;
+    data += chank;
+  }
+
 }
 /** Write byte to FIFO buffer.
  * @see getFIFOByte()
@@ -2982,6 +2989,7 @@ void MPU6050::setDMPEnabled(bool enabled) {
 }
 void MPU6050::resetDMP() {
   i2c_dev.writeBit( MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_DMP_RESET_BIT, true);
+  delay(600);
 }
 
 // BANK_SEL register

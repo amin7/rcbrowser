@@ -99,7 +99,7 @@ bool I2Cdev::readBytes(uint8_t regAddr, uint8_t length, uint8_t *data) {
 }
 
 bool I2Cdev::writeBytes(uint8_t regAddr, uint8_t length, uint8_t *data) {
-  const auto res = i2c_smbus_write_block_data(fd_, regAddr, length, data);
+  const auto res = i2c_smbus_write_i2c_block_data(fd_, regAddr, length, data);
   return (res < 0) ? false : true;
 }
 /** write a single bit in an 8-bit device register.

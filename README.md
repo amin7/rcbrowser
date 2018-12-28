@@ -44,3 +44,4 @@ sudo /etc/init.d/rcbrowser stop
 sudo /etc/init.d/rcbrowser start
 sudo mount -a
 
+https://marketplace.eclipse.org/content/direct-remote-c-debugging

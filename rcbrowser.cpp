@@ -223,8 +223,87 @@ void MPU6050_dmp() {
   mpu.setZGyroOffset(-85);
   mpu.setZAccelOffset(1788);
 
+  cout << "Enabling DMP..." << endl;
   mpu.setDMPEnabled(true);
 
+  // get expected DMP packet size for later comparison
+  const auto packetSize = mpu.dmpGetFIFOPacketSize();
+  cout << "FIFO packetSize=" << packetSize << endl;
+  while (1) {
+    //wait data
+    auto const fifoCount = mpu.getFIFOCount();
+    auto mpuIntStatus = mpu.getIntStatus();
+    //cout << "FIFO fifoCount!" << fifoCount << endl;
+
+    if (mpuIntStatus & (1 << MPU6050_INTERRUPT_FIFO_OFLOW_BIT) || fifoCount >= 1024) {
+      // reset so we can continue cleanly
+      mpu.resetFIFO();
+      cout << "FIFO overflow!" << endl;
+      continue;
+    }
+    if (fifoCount >= packetSize) {
+      //cout << "get packet" << endl;
+      uint8_t fifoBuffer[packetSize];
+      mpu.getFIFOBytes(fifoBuffer, packetSize);
+//      mpu.getFIFOBytes(fifoBuffer, 32);
+//      mpu.getFIFOBytes(fifoBuffer + 32, packetSize - 32);
+
+      Quaternion q;           // [w, x, y, z]         quaternion container
+      VectorInt16 aa;         // [x, y, z]            accel sensor measurements
+      VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
+      VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
+      VectorFloat gravity;    // [x, y, z]            gravity vector
+      float euler[3];         // [psi, theta, phi]    Euler angle container
+      float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+
+#if 0// OUTPUT_READABLE_QUATERNION
+
+      // display quaternion values in easy matrix form: w x y z
+      mpu.dmpGetQuaternion(&q, fifoBuffer);
+      cout << "quat\t" << q.w << "\t" << q.x << "\t" << q.y << "\t" << q.z << endl;
+#endif
+
+#if 0//  OUTPUT_READABLE_EULER
+      // display Euler angles in degrees
+      mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetEuler(euler, &q);
+      cout << "euler\t" << euler[0] * 180 / M_PI << "\t" << euler[1] * 180 / M_PI << "\t" << euler[2] * 180 / M_PI << endl;
+#endif
+
+#ifdef OUTPUT_READABLE_YAWPITCHROLL
+      // display Euler angles in degrees
+      mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetGravity(&gravity, &q);
+      mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+      Serial.print("ypr\t");
+      Serial.print(ypr[0] * 180/M_PI);
+      Serial.print("\t");
+      Serial.print(ypr[1] * 180/M_PI);
+      Serial.print("\t");
+      Serial.println(ypr[2] * 180/M_PI);
+#endif
+
+#if 1 // OUTPUT_READABLE_REALACCEL
+      // display real acceleration, adjusted to remove gravity
+      mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetAccel(&aa, fifoBuffer);
+      mpu.dmpGetGravity(&gravity, &q);
+      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+      cout << "areal\t" << aaReal.x << "\t" << aaReal.y << "\t" << aaReal.z << endl;
+#endif
+
+#if 0// OUTPUT_READABLE_WORLDACCEL
+      // display initial world-frame acceleration, adjusted to remove gravity
+      // and rotated based on known orientation from quaternion
+      mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetAccel(&aa, fifoBuffer);
+      mpu.dmpGetGravity(&gravity, &q);
+      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+      mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
+      cout << "aworld\t" << aaWorld.x << "\t" << aaWorld.y << "\t" << aaWorld.z << endl;
+#endif
+    }
+  }
 }
 
 void MPU6050_main() {
@@ -242,28 +321,6 @@ void MPU6050_main() {
     return;
   }
   accelgyro.initialize();
-  // use the code below to change accel/gyro offset values
-  /*
-   printf("Updating internal sensor offsets...\n");
-   // -76  -2359 1688  0 0 0
-   printf("%i \t %i \t %i \t %i \t %i \t %i\n",
-   accelgyro.getXAccelOffset(),
-   accelgyro.getYAccelOffset(),
-   accelgyro.getZAccelOffset(),
-   accelgyro.getXGyroOffset(),
-   accelgyro.getYGyroOffset(),
-   accelgyro.getZGyroOffset());
-   accelgyro.setXGyroOffset(220);
-   accelgyro.setYGyroOffset(76);
-   accelgyro.setZGyroOffset(-85);
-   printf("%i \t %i \t %i \t %i \t %i \t %i\n",
-   accelgyro.getXAccelOffset(),
-   accelgyro.getYAccelOffset(),
-   accelgyro.getZAccelOffset(),
-   accelgyro.getXGyroOffset(),
-   accelgyro.getYGyroOffset(),
-   accelgyro.getZGyroOffset());
-   */
 
   cout << endl;
   cout << "  ax \t ay \t az \t gx \t gy \t gz" << endl;
