@@ -153,14 +153,13 @@ bool I2Cdev::writeByte(uint8_t regAddr, uint8_t data) {
  * @param data Container for word value read from device
  * @return Status of read operation (true = success)
  */
-bool I2Cdev::readWord(uint8_t regAddr, uint16_t *data) {
-  *data = wiringPiI2CReadReg16(fd_, regAddr);
-  return true;
+uint16_t I2Cdev::readWord(uint8_t regAddr) {
+  auto val = wiringPiI2CReadReg16(fd_, regAddr);
+  return (val << 8) | (val >> 8);
 }
 
-bool I2Cdev::writeWord(uint8_t regAddr, uint16_t data) {
-  wiringPiI2CWriteReg16(fd_, regAddr, data);
-  return true;
+void I2Cdev::writeWord(uint8_t regAddr, uint16_t data) {
+  wiringPiI2CWriteReg16(fd_, regAddr, (data << 8) | (data >> 8));
 }
 
 #else

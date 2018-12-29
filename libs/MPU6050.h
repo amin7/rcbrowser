@@ -1017,11 +1017,10 @@ class MPU6050 {
             void dmpOverrideQuaternion(long *q);
             uint16_t dmpGetFIFOPacketSize();
         #endif
-
     private:
   const uint8_t devAddr_;
   I2Cdev i2c_dev;
-        uint8_t buffer[14];
+  uint8_t buffer[14];
     #if defined(MPU6050_INCLUDE_DMP_MOTIONAPPS20) or defined(MPU6050_INCLUDE_DMP_MOTIONAPPS41)
         uint8_t *dmpPacketBuffer;
         uint16_t dmpPacketSize;

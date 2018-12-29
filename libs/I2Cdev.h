@@ -49,14 +49,15 @@ public:
   bool readBits(uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data);
 
   bool readByte(uint8_t regAddr, uint8_t *data);
-  bool readWord(uint8_t regAddr, uint16_t *data);
+  uint16_t readWord(uint8_t regAddr);
+  void writeWord(uint8_t regAddr, uint16_t data);
+
   bool readBytes(uint8_t regAddr, uint8_t length, uint8_t *data);
 
   bool writeBit(uint8_t regAddr, uint8_t bitNum, bool data);
   bool writeBits(uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
-
   bool writeByte(uint8_t regAddr, uint8_t data);
-  bool writeWord(uint8_t regAddr, uint16_t data);
+
   bool writeBytes(uint8_t regAddr, uint8_t length, uint8_t *data);
 };
 

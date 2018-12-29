@@ -1795,14 +1795,18 @@ void MPU6050::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int
  * @see getRotation()
  * @see MPU6050_RA_ACCEL_XOUT_H
  */
+inline int16_t create_int_16(uint8_t h, uint8_t l) {
+  return (static_cast<int16_t>(h) << 8) | l;
+}
 void MPU6050::getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz) {
-  i2c_dev.readBytes( MPU6050_RA_ACCEL_XOUT_H, 14, buffer);
-    *ax = (((int16_t)buffer[0]) << 8) | buffer[1];
-    *ay = (((int16_t)buffer[2]) << 8) | buffer[3];
-    *az = (((int16_t)buffer[4]) << 8) | buffer[5];
-    *gx = (((int16_t)buffer[8]) << 8) | buffer[9];
-    *gy = (((int16_t)buffer[10]) << 8) | buffer[11];
-    *gz = (((int16_t)buffer[12]) << 8) | buffer[13];
+  uint8_t tmp[14];
+  i2c_dev.readBytes( MPU6050_RA_ACCEL_XOUT_H, 14, tmp);
+  *ax = create_int_16(tmp[0], tmp[1]);
+  *ay = create_int_16(tmp[2], tmp[3]);
+  *az = create_int_16(tmp[4], tmp[5]);
+  *gx = create_int_16(tmp[8], tmp[9]);
+  *gy = create_int_16(tmp[10], tmp[11]);
+  *gz = create_int_16(tmp[12], tmp[13]);
 }
 /** Get 3-axis accelerometer readings.
  * These registers store the most recent accelerometer measurements.
@@ -1920,10 +1924,11 @@ int16_t MPU6050::getTemperature() {
  * @see MPU6050_RA_GYRO_XOUT_H
  */
 void MPU6050::getRotation(int16_t* x, int16_t* y, int16_t* z) {
-  i2c_dev.readBytes( MPU6050_RA_GYRO_XOUT_H, 6, buffer);
-    *x = (((int16_t)buffer[0]) << 8) | buffer[1];
-    *y = (((int16_t)buffer[2]) << 8) | buffer[3];
-    *z = (((int16_t)buffer[4]) << 8) | buffer[5];
+  uint8_t buff[6];
+  i2c_dev.readBytes( MPU6050_RA_GYRO_XOUT_H, 6, buff);
+  *x = create_int_16(buff[0], buff[1]);
+  *y = create_int_16(buff[2], buff[3]);
+  *z = create_int_16(buff[4], buff[5]);
 }
 /** Get X-axis gyroscope reading.
  * @return X-axis rotation measurement in 16-bit 2's complement format
@@ -1931,8 +1936,7 @@ void MPU6050::getRotation(int16_t* x, int16_t* y, int16_t* z) {
  * @see MPU6050_RA_GYRO_XOUT_H
  */
 int16_t MPU6050::getRotationX() {
-  i2c_dev.readBytes( MPU6050_RA_GYRO_XOUT_H, 2, buffer);
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+  return i2c_dev.readWord(MPU6050_RA_GYRO_XOUT_H);
 }
 /** Get Y-axis gyroscope reading.
  * @return Y-axis rotation measurement in 16-bit 2's complement format
@@ -1940,8 +1944,7 @@ int16_t MPU6050::getRotationX() {
  * @see MPU6050_RA_GYRO_YOUT_H
  */
 int16_t MPU6050::getRotationY() {
-  i2c_dev.readBytes( MPU6050_RA_GYRO_YOUT_H, 2, buffer);
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+  return i2c_dev.readWord(MPU6050_RA_GYRO_YOUT_H);
 }
 /** Get Z-axis gyroscope reading.
  * @return Z-axis rotation measurement in 16-bit 2's complement format
@@ -1949,8 +1952,7 @@ int16_t MPU6050::getRotationY() {
  * @see MPU6050_RA_GYRO_ZOUT_H
  */
 int16_t MPU6050::getRotationZ() {
-  i2c_dev.readBytes( MPU6050_RA_GYRO_ZOUT_H, 2, buffer);
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+  return i2c_dev.readWord(MPU6050_RA_GYRO_ZOUT_H);
 }
 
 // EXT_SENS_DATA_* registers
@@ -2711,9 +2713,7 @@ void MPU6050::setStandbyZGyroEnabled(bool enabled) {
  * @return Current FIFO buffer size
  */
 uint16_t MPU6050::getFIFOCount() {
-  uint16_t count;
-  i2c_dev.readWord( MPU6050_RA_FIFO_COUNTH, &count);
-  return (count << 8) | (count >> 8);
+  return i2c_dev.readWord( MPU6050_RA_FIFO_COUNTH);
 }
 
 // FIFO_R_W register
@@ -2866,8 +2866,7 @@ void MPU6050::setZFineGain(int8_t gain) {
 // XA_OFFS_* registers
 
 int16_t MPU6050::getXAccelOffset() {
-  i2c_dev.readBytes( MPU6050_RA_XA_OFFS_H, 2, buffer);
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+  return i2c_dev.readWord( MPU6050_RA_XA_OFFS_H);
 }
 void MPU6050::setXAccelOffset(int16_t offset) {
   i2c_dev.writeWord( MPU6050_RA_XA_OFFS_H, offset);
@@ -2876,8 +2875,7 @@ void MPU6050::setXAccelOffset(int16_t offset) {
 // YA_OFFS_* register
 
 int16_t MPU6050::getYAccelOffset() {
-  i2c_dev.readBytes( MPU6050_RA_YA_OFFS_H, 2, buffer);
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+  return i2c_dev.readWord( MPU6050_RA_YA_OFFS_H);
 }
 void MPU6050::setYAccelOffset(int16_t offset) {
   i2c_dev.writeWord( MPU6050_RA_YA_OFFS_H, offset);
@@ -2886,8 +2884,7 @@ void MPU6050::setYAccelOffset(int16_t offset) {
 // ZA_OFFS_* register
 
 int16_t MPU6050::getZAccelOffset() {
-  i2c_dev.readBytes( MPU6050_RA_ZA_OFFS_H, 2, buffer);
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+  return i2c_dev.readWord( MPU6050_RA_ZA_OFFS_H);
 }
 void MPU6050::setZAccelOffset(int16_t offset) {
   i2c_dev.writeWord( MPU6050_RA_ZA_OFFS_H, offset);
@@ -2896,8 +2893,7 @@ void MPU6050::setZAccelOffset(int16_t offset) {
 // XG_OFFS_USR* registers
 
 int16_t MPU6050::getXGyroOffset() {
-  i2c_dev.readBytes( MPU6050_RA_XG_OFFS_USRH, 2, buffer);
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+  return i2c_dev.readWord( MPU6050_RA_XG_OFFS_USRH);
 }
 void MPU6050::setXGyroOffset(int16_t offset) {
   i2c_dev.writeWord( MPU6050_RA_XG_OFFS_USRH, offset);
@@ -2906,8 +2902,7 @@ void MPU6050::setXGyroOffset(int16_t offset) {
 // YG_OFFS_USR* register
 
 int16_t MPU6050::getYGyroOffset() {
-  i2c_dev.readBytes( MPU6050_RA_YG_OFFS_USRH, 2, buffer);
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+  return i2c_dev.readWord( MPU6050_RA_YG_OFFS_USRH);
 }
 void MPU6050::setYGyroOffset(int16_t offset) {
   i2c_dev.writeWord( MPU6050_RA_YG_OFFS_USRH, offset);
@@ -2916,8 +2911,7 @@ void MPU6050::setYGyroOffset(int16_t offset) {
 // ZG_OFFS_USR* register
 
 int16_t MPU6050::getZGyroOffset() {
-  i2c_dev.readBytes( MPU6050_RA_ZG_OFFS_USRH, 2, buffer);
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+  return i2c_dev.readWord( MPU6050_RA_ZG_OFFS_USRH);
 }
 void MPU6050::setZGyroOffset(int16_t offset) {
   i2c_dev.writeWord( MPU6050_RA_ZG_OFFS_USRH, offset);

@@ -17,6 +17,7 @@ SOURCES += hc_sr04.cpp
 SOURCES += CManipulator.cpp
 SOURCES += CRadar.cpp
 SOURCES += CHttpCmdHandler.cpp
+SOURCES += MPU6050misc.cpp
 ifndef SIMULATION
 SOURCES += ./libs/pca9685.c
 endif
