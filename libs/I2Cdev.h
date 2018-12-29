@@ -49,6 +49,7 @@ public:
   bool readBits(uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data);
 
   bool readByte(uint8_t regAddr, uint8_t *data);
+  uint8_t readByte(uint8_t regAddr);
   uint16_t readWord(uint8_t regAddr);
   void writeWord(uint8_t regAddr, uint16_t data);
 

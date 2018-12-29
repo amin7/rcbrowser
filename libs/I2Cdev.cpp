@@ -85,6 +85,9 @@ bool I2Cdev::readByte(uint8_t regAddr, uint8_t *data) {
   *data = wiringPiI2CReadReg8(fd_, regAddr);
   return true;
 }
+uint8_t I2Cdev::readByte(uint8_t regAddr) {
+  return wiringPiI2CReadReg8(fd_, regAddr);
+}
 
 /** Read multiple bytes from an 8-bit device register.
  * @param devAddr I2C slave device address

@@ -870,7 +870,7 @@ class MPU6050 {
             uint8_t dmpGetLinearAccel(int32_t *data, const uint8_t* packet=0);
             uint8_t dmpGetLinearAccel(int16_t *data, const uint8_t* packet=0);
             uint8_t dmpGetLinearAccel(VectorInt16 *v, const uint8_t* packet=0);
-            uint8_t dmpGetLinearAccel(VectorInt16 *v, VectorInt16 *vRaw, VectorFloat *gravity);
+  uint8_t dmpGetLinearAccel(VectorInt16 *v, const VectorInt16 *vRaw, const VectorFloat *gravity);
             uint8_t dmpGetLinearAccelInWorld(int32_t *data, const uint8_t* packet=0);
             uint8_t dmpGetLinearAccelInWorld(int16_t *data, const uint8_t* packet=0);
             uint8_t dmpGetLinearAccelInWorld(VectorInt16 *v, const uint8_t* packet=0);

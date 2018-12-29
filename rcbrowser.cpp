@@ -15,6 +15,7 @@ void ultrasonic0_echo_handler() {
 
 pca9685_Servo chasis_camer(pca_pin_chasis_cameraY, 0, 100, pwm_chasis_camera_min, pwm_chasis_camera_max);
 CHttpCmdHandler http_cmd_handler;
+MPU6050_DMP_func mpu6050;
 
 void print(mg_str str) {
   const char *t = str.p;
@@ -36,6 +37,16 @@ bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
     return true;
   }
   return false;
+}
+
+bool handle_mpu6050(const rapidjson::Document &d, rapidjson::Document &reply) {
+  auto &allocator = reply.GetAllocator();
+  array<int16_t, 3> yaw_pitch_roll;
+  mpu6050.get_yaw_pitch_roll(yaw_pitch_roll.data());
+  reply.AddMember("yaw", yaw_pitch_roll[0], allocator);
+  reply.AddMember("pitch", yaw_pitch_roll[1], allocator);
+  reply.AddMember("roll", yaw_pitch_roll[2], allocator);
+  return true;
 }
 
 bool handle_status(const rapidjson::Document &d, rapidjson::Document &reply) {
@@ -101,9 +112,9 @@ bool handle_wheels(const rapidjson::Document &d, rapidjson::Document &reply) {
   return true;
 }
 
-const auto pin_manipulator_base = 4;
-const auto pin_manipulator_l = 5;
-const auto pin_manipulator_r = 6;
+constexpr auto pin_manipulator_base = 4;
+constexpr auto pin_manipulator_l = 5;
+constexpr auto pin_manipulator_r = 6;
 
 CManipulator manipulator(pin_manipulator_base, pin_manipulator_l, pin_manipulator_r);
 
@@ -205,6 +216,7 @@ void init() {
   radar.init(ultrasonic0_echo_handler);
   manipulator.init();
   radar.start();
+  mpu6050.init();
 }
 
 
@@ -243,6 +255,8 @@ int main(int argc, char *argv[]) {
   http_cmd_handler.add("/manipulator", handle_manipulator);
   http_cmd_handler.add("/chasisradar", handle_chasisradar);
   http_cmd_handler.add("/status", handle_status);
+  http_cmd_handler.add("/mpu6050", handle_mpu6050);
+
 //--------------
   if (is_demon_mode) {
     daemonize();
@@ -251,9 +265,10 @@ int main(int argc, char *argv[]) {
   init();
 
   cout << "Number of threads = " << thread::hardware_concurrency() << endl;
-  auto gyro_thread = std::thread(MPU6050_dmp);
+  //MPU6050_main();
+  auto gyro_thread = std::thread([] {mpu6050.main();});
   //auto gyro_thread = std::thread(MPU6050_calibrate);
-  //auto gyro_thread = std::thread(MPU6050_main);
+
   struct mg_mgr mgr;
   struct mg_connection *nc;
   struct mg_bind_opts bind_opts;

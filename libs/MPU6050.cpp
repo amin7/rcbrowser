@@ -1549,8 +1549,7 @@ void MPU6050::setClockOutputEnabled(bool enabled) {
  * @see MPU6050_INTERRUPT_FF_BIT
  **/
 uint8_t MPU6050::getIntEnabled() {
-  i2c_dev.readByte( MPU6050_RA_INT_ENABLE, buffer);
-    return buffer[0];
+  return i2c_dev.readByte( MPU6050_RA_INT_ENABLE);
 }
 /** Set full interrupt enabled status.
  * Full register byte for all interrupts, for quick reading. Each bit should be
@@ -1690,8 +1689,7 @@ void MPU6050::setIntDataReadyEnabled(bool enabled) {
  * @see MPU6050_RA_INT_STATUS
  */
 uint8_t MPU6050::getIntStatus() {
-  i2c_dev.readByte( MPU6050_RA_INT_STATUS, buffer);
-    return buffer[0];
+  return i2c_dev.readByte( MPU6050_RA_INT_STATUS);
 }
 /** Get Free Fall interrupt status.
  * This bit automatically sets to 1 when a Free Fall interrupt has been

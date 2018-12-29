@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mutex>
 class MPU6050_misc: private MPU6050 {
   int16_t ax, ay, az, gx, gy, gz;
   int16_t mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz;
@@ -28,8 +29,25 @@ class MPU6050_misc: private MPU6050 {
   void calculate_offs();
 };
 
-void MPU6050_setoffs(MPU6050 &);
+class MPU6050_DMP: protected MPU6050 {
+protected:
+  bool inited_ = false;
+  virtual void processDate(const uint8_t *buffer)=0;
+public:
+  bool init();
+  void main();
+};
+
+class MPU6050_DMP_func: public MPU6050_DMP {
+protected:
+  std::mutex date_mx_;
+  std::array<int16_t, 3> yaw_pitch_roll_;
+  virtual void processDate(const uint8_t *buffer);
+  public:
+  void get_yaw_pitch_roll(int16_t *yaw_pitch_roll);
+};
+
 void MPU6050_main();
-void MPU6050_dmp();
+void MPU6050_dmp_test();
 void MPU6050_calibrate();
 #endif /* MPU6050MISC_H_ */
