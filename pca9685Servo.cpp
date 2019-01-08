@@ -26,6 +26,10 @@ pca9685_Servo::pca9685_Servo(uint8_t _pin, int16_t _minVal, int16_t _maxVal, uin
     pin_(_pin), minVal(_minVal), maxVal(_maxVal), minPulse(_minPulse), maxPulse(_maxPulse)
 {
 }
+void pca9685_Servo::init() {
+  setVal(minVal);
+}
+
 void pca9685_Servo::init(int16_t init_val) {
   setVal(init_val);
 }

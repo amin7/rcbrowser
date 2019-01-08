@@ -24,8 +24,8 @@ class CRadar {
   std::thread thd_;
   const int16_t angle_min = -90;
   const int16_t angle_max = 90;
-  const int16_t pwm_min = 110;
-  const int16_t pwm_max = 510;
+  const int16_t pwm_max = 110;
+  const int16_t pwm_min = 510;
   int16_t angle = angle_min;
   bool angle_up = true;
   pca9685_Servo dir_servo;
@@ -51,6 +51,10 @@ public:
   }
   virtual ~CRadar() {
     stop();
+  }
+  const int16_t getMaxDistance() const
+  {
+    return hc_sr04.MAX_DISTANCE;
   }
   const int16_t getAngleStep() const
   {

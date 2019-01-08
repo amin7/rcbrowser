@@ -81,7 +81,10 @@ function get_chasis_radar(){
         var res = JSON.parse(xmlHttp.responseText);        
         if(!radar){//init radar
         	radar=new Radar({id:"ultrasonic",
-        		minAngle:res.AngleMin,maxAngle:res.AngleMax,angleStep:res.AngleStep	});
+        		minAngle:res.AngleMin,
+        		maxAngle:res.AngleMax,
+        		angleStep:res.AngleStep,
+        		maxDistance:res.MaxDistance});
         }        
         res.radar.forEach(function(item){
         	if(radar_last_timestamp<item.time){

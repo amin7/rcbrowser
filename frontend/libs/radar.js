@@ -6,7 +6,7 @@ function Radar(opts){
 	const minAngle = opts.minAngle||-90;
 	const maxAngle = opts.maxAngle||90;	
 	const angleStep= opts.angleStep||15;
-	const maxDistance = 100;		
+	const maxDistance = opts.maxDistance||100;		
 	var sonic =[];
 	var cash_val=[];
 	var paper = Raphael(radar_id_);

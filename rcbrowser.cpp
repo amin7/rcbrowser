@@ -76,6 +76,7 @@ static bool handle_chasisradar(const rapidjson::Document &d, rapidjson::Document
     reply.AddMember("AngleMin", radar.getAngleMin(), allocator);
     reply.AddMember("AngleMax", radar.getAngleMax(), allocator);
     reply.AddMember("AngleStep", radar.getAngleStep(), allocator);
+    reply.AddMember("MaxDistance", radar.getMaxDistance(), allocator);
   }
   rapidjson::Value values(rapidjson::kArrayType);
   //<angle<timestamp,distance>>
