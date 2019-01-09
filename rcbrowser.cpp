@@ -28,6 +28,21 @@ void print(mg_str str) {
 }
 
 
+bool handle_config(const rapidjson::Document &d, rapidjson::Document &reply) {
+  auto &allocator = reply.GetAllocator();
+#ifdef _SIMULATION_
+  reply.AddMember("simulation",true, allocator);
+#endif
+  rapidjson::Value cameras(rapidjson::kArrayType);
+#ifndef _SIMULATION_
+  rapidjson::Value cameras_chasis(rapidjson::kObjectType);
+  cameras_chasis.AddMember("name", "Chasis", allocator);
+  cameras_chasis.AddMember("path", ":8080/stream/video.mjpeg", allocator);
+  cameras.PushBack(cameras_chasis, allocator);
+  reply.AddMember("cameras", cameras, allocator);
+#endif
+  return true;
+}
 bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
 
   if (d.HasMember("pwm")) {
@@ -200,6 +215,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
   }
 }
 
+
 #define PIN_BASE 300
 #define HERTZ 50
 
@@ -257,6 +273,7 @@ int main(int argc, char *argv[]) {
   http_cmd_handler.add("/chasisradar", handle_chasisradar);
   http_cmd_handler.add("/status", handle_status);
   http_cmd_handler.add("/mpu6050", handle_mpu6050);
+  http_cmd_handler.add("/config", handle_config);
 
 //--------------
   if (is_demon_mode) {
@@ -267,7 +284,7 @@ int main(int argc, char *argv[]) {
 
   cout << "Number of threads = " << thread::hardware_concurrency() << endl;
   //MPU6050_main();
-  auto gyro_thread = std::thread([] {mpu6050.main();});
+  auto gyro_thread = std::thread([]() {mpu6050.main();});
   //auto gyro_thread = std::thread(MPU6050_calibrate);
 
   struct mg_mgr mgr;

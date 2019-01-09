@@ -8,6 +8,20 @@ function minmax(veriable,min,max){
 	return veriable;
 }
 
+function setCameraSupport(url){	
+	var place = document.getElementById("camera");
+	while (place.firstChild) {
+		place.removeChild(place.firstChild);
+	}	
+	//<img id="fpv_stream" src="http://192.168.1.164:8080/stream/video.mjpeg" alt="image"  />
+	let chasisCamera=document.createElement("img");
+	chasisCamera.id="fpv_stream";
+	chasisCamera.src="http://"+document.location.hostname+url;
+	chasisCamera.alt="image";		
+	place.appendChild(chasisCamera);
+	
+}
+
 function on_chasis_stop(){
 	console.log('on_stop');
 	set_wheels(0,0);
@@ -142,10 +156,28 @@ function get_status(){
   xmlHttp.send(null);
 }
 
+function getConfig(){
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function(){
+    if (xmlHttp.readyState == 4){
+      if(xmlHttp.status == 200) {
+        var res = JSON.parse(xmlHttp.responseText);        
+        console.log(res);
+        for(var camera in res.cameras){
+        	setCameraSupport(res.cameras[camera].path);
+        }
+      }
+    }
+  };
+  xmlHttp.open("PUT", "/config", true);
+  xmlHttp.setRequestHeader("Content-type", "application/json");  
+  xmlHttp.send(null);
+}
+
 function init_driver(){	
 	console.log('started init_driver');
 	console.log('location.hostname='+document.location.hostname+' port='+document.location.port  );
-	
+	getConfig();
 	var jChasis	= new VirtualJoystick({
 		container	: document.getElementById('joystick_layer'),
 		limitStickTravel: true,
