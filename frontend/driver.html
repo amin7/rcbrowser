@@ -24,6 +24,7 @@
 	     <div id="info_bar">
 	        <button id="camera_button" class="btn" onclick="todgeCamera()">Camera Dir</button>
 	        <a id="vbat"></a>
+	        <input type="range" min="0" max="4000" step="500" onchange="changeRadar(this.value)">
 	        <button id="radar_button" class="btn" onclick="todgeRadar()">Radar</button>
 	     </div>	     
 	     <div id="joystick_layer"></div>

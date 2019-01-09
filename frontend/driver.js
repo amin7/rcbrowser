@@ -140,6 +140,12 @@ function showRadar(show){
 	}	
 }
 
+function changeRadar(distance){
+	if(radar){
+		radar.setShowDistance(distance);
+	}
+}
+
 function get_status(){
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function(){
