@@ -12,7 +12,7 @@ function Radar(opts){
 	var showedDistance=maxDistance;
 	var range_arc;
 	var sonic =[];
-	var cash_val=[];
+	var cash_val=[];	
 	var paper = Raphael(radar_id_);
 	var centerP; // Center points
 	var radius;
@@ -26,10 +26,12 @@ function Radar(opts){
 			if(radius_arc>showedDistance){
 				break;
 			}
-			let length=radius_arc/showedDistance*radius;
-			range_arc+=["M",centerP.x-length * radius,centerP.y];
-			range_arc+=["A",length,length * k_elipse,0,0,0,centerP.x+length,centerP.y];
+			let length=Math.round(radius_arc/showedDistance*radius);
+			range_arc+=["M",centerP.x-length,centerP.y];
+			range_arc+=["A",length,Math.round(length * k_elipse),0,0,1,centerP.x+length,centerP.y];
 		}
+		range_arc+=["M",centerP.x-2,centerP.y];
+		range_arc+=["A",2,2,0,0,1,centerP.x+2,centerP.y];
 		return range_arc;
 	}
 	
@@ -42,17 +44,12 @@ function Radar(opts){
 		if(radius>paper.width/2){
 			radius=paper.width/2;
 		}
-		paper.circle(centerP.x,centerP.y,4);
-		paper.path(get_range_arc()).attr({		
-			"fill": "225-#fbb03b:20-#fbb03b:50",				
+		range_arc=paper.path(get_range_arc()).attr({
 			'stroke': 'black',
 			"stroke-width": 1
 		});		
 		}
 	this.resize();	
-		
-//	var c = paper.rect(paper.width-40, 0, 40, 30, 5);
-//	var t= paper.text(c.getBBox().x+c.getBBox().width/2, c.getBBox().y+c.getBBox().height/2,"radar").attr({'font-size':15,'text-anchor':'middle','alignment-baseline':"middle"});
 		
 	function getIndex(andle){
 		if(andle<minAngle||andle>maxAngle){
@@ -105,19 +102,24 @@ function Radar(opts){
 		}	
 	}
 	this.setShowDistance=function(distance){
-		showedDistance=distance
+		showedDistance=distance;
 		if(showedDistance>maxDistance){
 			showedDistance=maxDistance;
 		}	
 		cash_val.forEach(function(distance,index){
-			let drawPath=getSector(distance,minAngle+angleStep*index)		
-			
+			let drawPath=getSector(distance,minAngle+angleStep*index);			
 			sonic[index].animate({path: drawPath},100, function() {
 				this.attr({path: drawPath});
 			});
 		});
+		
+		range_arc_new=get_range_arc();
+		range_arc.animate({path: range_arc_new},100, function() {
+			this.attr({path: range_arc_new});
+		});		
 		}
 	this.delete=function(){
-		paper.remove()		
+		paper.remove();
 	}
+	this.getMaxDistance=function(){return maxDistance;}
 }

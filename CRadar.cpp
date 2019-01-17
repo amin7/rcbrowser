@@ -23,11 +23,7 @@ void CRadar::thread_function() {
   map_mu_.lock();
   surrond_[angle]= {
     chrono::duration_cast< chrono::milliseconds >(chrono::system_clock::now().time_since_epoch()),
-#ifndef _SIMULATION_
     hc_sr04.measure()
-#else
-    static_cast<int32_t>(static_cast<float>(std::rand())/RAND_MAX*getMaxDistance())
-#endif
   };
   map_mu_.unlock();
   if (angle_up) {

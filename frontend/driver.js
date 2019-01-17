@@ -85,20 +85,26 @@ function showCamera(show){
 }
 
 var radar;
+var radar_isShow;
 var radar_Interval;
 var radar_last_timestamp=0;
+
 function get_chasis_radar(){
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function(){
     if (xmlHttp.readyState == 4){
       if(xmlHttp.status == 200) {
+    	  if(!radar_isShow){
+    		  return;
+    	  }
         var res = JSON.parse(xmlHttp.responseText);        
         if(!radar){//init radar
         	radar=new Radar({id:"ultrasonic",
         		minAngle:res.AngleMin,
         		maxAngle:res.AngleMax,
         		angleStep:res.AngleStep,
-        		maxDistance:res.MaxDistance});
+        		maxDistance:res.MaxDistance,
+        		showRangeArc:500});
         }        
         res.radar.forEach(function(item){
         	if(radar_last_timestamp<item.time){
@@ -119,15 +125,29 @@ function get_chasis_radar(){
   }
 }
 
+var radar_mode=0; //0 off 1= 1m, 2=half 3= full
 function todgeRadar(){
-	if(radar){
+	radar_mode++;
+	if(3<radar_mode){
+		radar_mode=0;	
+	}
+	switch(radar_mode){
+	case 0: //off
 		showRadar(false);
-	}else{
+		break;
+	case 1://full distance
 		showRadar(true);
+		break;
+	case 2:
+		changeRadar(radar.getMaxDistance()/2);
+		break;
+	case 3:
+		changeRadar(1000);
+		break;		
 	}
 }
 function showRadar(show){
-	showElement("ultrasonic",show);
+	radar_isShow=show;
 	if(show){		
 		radar_Interval=setInterval(get_chasis_radar,300);
 		get_chasis_radar();
@@ -171,6 +191,7 @@ function getConfig(){
         console.log(res);
         for(var camera in res.cameras){
         	setCameraSupport(res.cameras[camera].path);
+        	showElement("camera_button",true);
         }
       }
     }
@@ -183,6 +204,7 @@ function getConfig(){
 function init_driver(){	
 	console.log('started init_driver');
 	console.log('location.hostname='+document.location.hostname+' port='+document.location.port  );
+	showElement("camera_button",false);
 	getConfig();
 	var jChasis	= new VirtualJoystick({
 		container	: document.getElementById('joystick_layer'),
@@ -207,8 +229,7 @@ function init_driver(){
 		on_chasis_stop();
 	} );	
 			
-	showCamera(true);
-	showRadar(true);
+	showCamera(false);	
 	setInterval(get_status,1000);
 }
 

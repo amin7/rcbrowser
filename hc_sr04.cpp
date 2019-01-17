@@ -53,10 +53,16 @@ int32_t HC_SR04::measure() {
 #endif
   const int32_t timeout = (MAX_DISTANCE * 1000 * 3 / SOUND_SPEED);
   this_thread::sleep_for(chrono::milliseconds(timeout));
+
+#ifndef _SIMULATION_
   if (stop_time == chrono::microseconds(0)) { //no responce
     return -1;
   }
-  return (stop_time - start_time).count() * SOUND_SPEED / 2 / 1000000 - 100;
+  const auto length = (stop_time - start_time).count() * SOUND_SPEED / 2 / 1000000 - 100;
+#else
+  const auto length = static_cast<int32_t>(static_cast<float>(std::rand())/RAND_MAX*MAX_DISTANCE);
+#endif
+  return (length / 5 * 5); //round 5mm
 }
 
 //eof
