@@ -1,7 +1,18 @@
 <html>
   <head>
+  <style>
+    #orient_id{
+        width:300px;
+        height:300px;
+    }
+    </style>
+    
   <title>test</title>
   <script src="test.js"></script>
+  <script src="libs/jquery-2.1.1.js"></script>
+  <script src="libs/jquery.mobile.custom.js"></script>
+  <script src="libs/three.min.js"></script>
+  <script src="libs/orientation.js"></script>
   </head>
   <body>
   <body onload="init()">
@@ -19,6 +30,7 @@
   <input type="number" id="pwm_value" min="0" max="4096" Value=0 onchange="pwm_set_value(this.value)"> 
   <input type="range" id="pwm_range" min="0" max="4096" Value="0" oninput="pwm_set_range(this.value)">
       
-  </div>        
+  </div> 
+  <div id="orient_id"></div>
   </body>
 </html>

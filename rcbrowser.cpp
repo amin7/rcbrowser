@@ -58,10 +58,15 @@ bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
 bool handle_mpu6050(const rapidjson::Document &d, rapidjson::Document &reply) {
   auto &allocator = reply.GetAllocator();
   array<int16_t, 3> yaw_pitch_roll;
-  mpu6050.get_yaw_pitch_roll(yaw_pitch_roll.data());
+  array<int16_t, 3> aw;
+  mpu6050.get(yaw_pitch_roll.data(), aw.data());
   reply.AddMember("yaw", yaw_pitch_roll[0], allocator);
   reply.AddMember("pitch", yaw_pitch_roll[1], allocator);
   reply.AddMember("roll", yaw_pitch_roll[2], allocator);
+
+  reply.AddMember("awx", aw[0], allocator);
+  reply.AddMember("awy", aw[1], allocator);
+  reply.AddMember("awz", aw[2], allocator);
   return true;
 }
 
@@ -246,7 +251,8 @@ int main(int argc, char *argv[]) {
   string frontend_folder = "";
   string http_port = "8000";
   app.add_flag("-d", is_demon_mode, "demon mode");
-  app.add_option("-f", frontend_folder, "frontend_folder")->check(CLI::ExistingDirectory);
+  //app.add_option("-f", frontend_folder, "frontend_folder")->check(CLI::ExistingDirectory);
+  app.add_option("-f", frontend_folder, "frontend_folder");
   app.add_option("-p", http_port, "http_port");
 
   CLI11_PARSE(app, argc, argv);
@@ -287,6 +293,7 @@ int main(int argc, char *argv[]) {
 
   cout << "Number of threads = " << thread::hardware_concurrency() << endl;
   //MPU6050_main();
+  //MPU6050_dmp_test();
   auto gyro_thread = std::thread([]() {mpu6050.main();});
   //auto gyro_thread = std::thread(MPU6050_calibrate);
 

@@ -239,7 +239,7 @@ function showElement(id,show) {
     if (!show) {
     	x.style.display = "none";
     } else {
-    	x.style.display = "block";
+    	x.style.display = "";
     }
 }
 

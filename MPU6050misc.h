@@ -42,9 +42,10 @@ class MPU6050_DMP_func: public MPU6050_DMP {
 protected:
   std::mutex date_mx_;
   std::array<int16_t, 3> yaw_pitch_roll_;
+  std::array<int16_t, 3> aw;  //accel world
   virtual void processDate(const uint8_t *buffer);
   public:
-  void get_yaw_pitch_roll(int16_t *yaw_pitch_roll);
+  void get(int16_t *yaw_pitch_roll, int16_t *aworld);
 };
 
 void MPU6050_main();

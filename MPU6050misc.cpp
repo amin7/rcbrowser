@@ -312,22 +312,31 @@ void MPU6050_DMP_func::processDate(const uint8_t *buffer) {
   dmpGetQuaternion(&q, buffer);
   dmpGetGravity(&gravity, &q);
   dmpGetYawPitchRoll(ypr, &q, &gravity);
+  dmpGetAccel(&aa, buffer);
+  dmpGetLinearAccel(&aaReal, &aa, &gravity);
+  dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
 
   std::lock_guard<std::mutex> lock(date_mx_);
   yaw_pitch_roll_[0] = ypr[0] * 180 / M_PI;
   yaw_pitch_roll_[1] = ypr[1] * 180 / M_PI;
   yaw_pitch_roll_[2] = ypr[2] * 180 / M_PI;
 
-//  cout << "ypr\t" << yaw_pitch_roll_[0]
-//      << "\t" << yaw_pitch_roll_[1]
-//      << "\t" << yaw_pitch_roll_[2] << endl;
+  aw[0] = aaWorld.x;
+  aw[1] = aaWorld.y;
+  aw[2] = aaWorld.z;
 }
 
-void MPU6050_DMP_func::get_yaw_pitch_roll(int16_t *yaw_pitch_roll) {
+void MPU6050_DMP_func::get(int16_t *yaw_pitch_roll, int16_t *aworld) {
+  std::lock_guard<std::mutex> lock(date_mx_);
   if (yaw_pitch_roll) {
-    std::lock_guard<std::mutex> lock(date_mx_);
     yaw_pitch_roll[0] = yaw_pitch_roll_[0];
     yaw_pitch_roll[1] = yaw_pitch_roll_[1];
     yaw_pitch_roll[2] = yaw_pitch_roll_[2];
   }
+  if (aworld) {
+    aworld[0] = aw[0];
+    aworld[1] = aw[1];
+    aworld[2] = aw[2];
+  }
 }
+
