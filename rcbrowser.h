@@ -33,6 +33,8 @@
 #include "CRadar.h"
 #include "CHttpCmdHandler.h"
 #include "MPU6050misc.h"
+#include "CPower.h"
+
 
 auto frontend_home = static_cast<string>("");
 constexpr auto radar_dir_pin_pca = 14;

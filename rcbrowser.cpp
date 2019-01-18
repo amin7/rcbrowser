@@ -16,6 +16,7 @@ void ultrasonic0_echo_handler() {
 pca9685_Servo chasis_camer(pca_pin_chasis_cameraY, 0, 100, pwm_chasis_camera_min, pwm_chasis_camera_max);
 CHttpCmdHandler http_cmd_handler;
 MPU6050_DMP_func mpu6050;
+CPower power;
 
 void print(mg_str str) {
   const char *t = str.p;
@@ -66,7 +67,8 @@ bool handle_mpu6050(const rapidjson::Document &d, rapidjson::Document &reply) {
 
 bool handle_status(const rapidjson::Document &d, rapidjson::Document &reply) {
   auto &allocator = reply.GetAllocator();
-  reply.AddMember("vbat", 8.5, allocator);
+  reply.AddMember("vbat", power.getVBAT(), allocator);
+  reply.AddMember("5v", power.get5V(), allocator);
   return true;
 }
 
@@ -227,6 +229,7 @@ void init() {
   fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
   pca9685PWMReset(fd);
 #endif
+  power.init();
   motorR0.init();
   motorL0.init();
   chasis_camer.init();

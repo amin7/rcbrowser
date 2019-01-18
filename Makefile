@@ -1,5 +1,5 @@
 PROG = rcbrowser
-SIMULATION = 1
+#SIMULATION = 1
 ifeq ($(OS),Windows_NT)
 SIMULATION = 1
 CXX = arm-linux-gnueabihf-g++.exe
@@ -18,6 +18,7 @@ SOURCES += CManipulator.cpp
 SOURCES += CRadar.cpp
 SOURCES += CHttpCmdHandler.cpp
 SOURCES += MPU6050misc.cpp
+SOURCES += CPower.cpp
 ifndef SIMULATION
 SOURCES += ./libs/pca9685.c
 endif
