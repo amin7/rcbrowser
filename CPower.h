@@ -15,11 +15,12 @@ class CPower {
   static constexpr auto inA0 = 0;
   static constexpr auto inA1 = 1;
   static constexpr auto inA2 = 2;
+  static constexpr auto inA3 = 3;
 public:
   bool init();
   int16_t getAIN(const uint8_t pin) const; //in mV
   int16_t getVBAT() const {
-    return getAIN(inA1);
+    return getAIN(inA3) * 2; //divader 10k+10k
     
   }
   int16_t get5V() const {

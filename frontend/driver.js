@@ -173,7 +173,8 @@ function get_status(){
       if(xmlHttp.status == 200) {
         var res = JSON.parse(xmlHttp.responseText);        
         console.log(res);
-        document.getElementById("vbat").innerHTML="vbat="+res.vbat/1000+"V"; //mV to V
+        document.getElementById("vbat").innerHTML="vbat="+res["vbat"]/1000+"V"; //mV to V
+        document.getElementById("vbat").innerHTML+=", 5v="+res["5v"]/1000+"V";
       }
     }
   };

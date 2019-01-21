@@ -46,3 +46,8 @@ sudo mount -a
 gpio i2cdetect
 
 https://marketplace.eclipse.org/content/direct-remote-c-debugging
+
+--------------------
+#ADC ads1115
+A0 -5v
+A3 -[10k]-vbat-[10k]-GND
