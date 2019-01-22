@@ -1,5 +1,6 @@
 //https://github.com/mrdoob/three.js/blob/master/examples/webgl_geometry_cube.html
-https://threejs.org/
+//https://threejs.org/
+//https://threejs.org/editor/
 function Orientation(opts){
 	opts			= opts			|| {};	
 	console.log('Orientation init opts='+opts);
@@ -17,20 +18,25 @@ function Orientation(opts){
 	function init() {
 		
 		scene = new THREE.Scene();
-		renderer = new THREE.WebGLRenderer( { antialias: true } );
+		renderer = new THREE.WebGLRenderer( { alpha: true  } );
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( place_id_.offsetWidth, place_id_.offsetHeight );
 		place_id_.appendChild( renderer.domElement );
 		
 		camera = new THREE.PerspectiveCamera( 70, place_id_.offsetWidth / place_id_.offsetHeight, 1, 1000 );
-		camera.position.z = 400;
+		camera.position.z = 20;
 		
+		var objectLoader = new THREE.ObjectLoader();
+		objectLoader.load( "../gfx/model_orientation.json", function ( obj ) {
+			mesh = obj;
+		 	scene.add( obj );
+		} );
 		//var texture = new THREE.TextureLoader().load( 'textures/crate.gif' );
-		var geometry = new THREE.TetrahedronBufferGeometry( 200);
-		var material = new THREE.MeshBasicMaterial({wireframe:true} );
-		mesh = new THREE.Mesh( geometry,material );
-		scene.add( mesh );
-		
+//		var geometry = new THREE.TetrahedronBufferGeometry( 200);
+//		var material = new THREE.MeshBasicMaterial({wireframe:true} );
+//		mesh = new THREE.Mesh( geometry,material );
+//		scene.add( mesh );
+//		
 		//
 		//window.addEventListener( 'resize', onWindowResize, false );
 	}
@@ -41,9 +47,9 @@ function Orientation(opts){
 		renderer.render( scene, camera );
 	}
 	this.set=function(roll,pitch,yaw){
-		mesh.rotation.x = roll*Math.PI/180;
-		mesh.rotation.y = pitch*Math.PI/180;
-		mesh.rotation.z = yaw*Math.PI/180;
+		mesh.rotation.z = roll*Math.PI/180;
+		mesh.rotation.x = pitch*Math.PI/180;
+		mesh.rotation.y = yaw*Math.PI/180;
 		renderer.render( scene, camera );		
 	}
 }

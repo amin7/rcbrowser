@@ -37,6 +37,15 @@ html, body {
     opacity:0.2;
  } 
  
+#orient_id{
+    position: absolute;
+    top: 0px;     
+    right: 0px; 
+    height: 30%;
+    width: 30%;     
+    opacity:0.2;
+ } 
+ 
  .btn {
   border: 2px solid black;
   background-color: white;

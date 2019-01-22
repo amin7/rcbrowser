@@ -8,17 +8,20 @@
   <script src="libs/jquery.mobile.custom.js"></script>
 <script src="libs/virtualjoystick.js"></script>
 <script src="libs/raphael.min.js"></script>
-<script src="driver.js"></script>
 <script src="libs/radar.js"></script>
 <script src="libs/slider.js"></script>
     <link rel="shortcut icon" type="image/png" href="gfx/rover_curiosity.png"/>
+    <script src="libs/three.min.js"></script>
+  <script src="libs/orientation.js"></script>
+  <script src="driver.js"></script>
   </head>
 
   <body>    
   <body onload="init_driver()" onresize="resize()">  
     <div id="camera">
     <img id="fpv_stream" src="gfx/test.jpg" alt="image"  /> 
-    </div>	         
+    </div>
+     <div id="orient_id"></div>	         
 	 <div id="ultrasonic"></div>
      <div id="control_layer_">
 	     <div id="info_bar">

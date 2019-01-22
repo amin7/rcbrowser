@@ -166,6 +166,25 @@ function changeRadar(distance){
 	}
 }
 
+var orientation;  
+function get_orientation(){
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.onreadystatechange = function(){
+	    if (xmlHttp.readyState == 4){
+	      if(xmlHttp.status == 200) {	    	 
+	        var res = JSON.parse(xmlHttp.responseText);        
+	        console.log(res);
+	        if(orientation){
+	        	orientation.set(res.roll,res.pitch,res.yaw);
+	        }
+	      }
+	    }
+	  };
+	  xmlHttp.open("PUT", "/mpu6050", true);
+	  xmlHttp.setRequestHeader("Content-type", "application/json");  
+	  xmlHttp.send(null);
+	}
+
 function get_status(){
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function(){
@@ -193,6 +212,12 @@ function getConfig(){
         for(var camera in res.cameras){
         	setCameraSupport(res.cameras[camera].path);
         	showElement("camera_button",true);
+        }
+        if(res.orientation==true){
+        	if(!orientation){
+	        	orientation=new Orientation({id:"orient_id"});
+	        	setInterval(get_orientation,300);
+        	}
         }
       }
     }

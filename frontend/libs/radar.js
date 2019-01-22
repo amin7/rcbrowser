@@ -98,7 +98,7 @@ function Radar(opts){
 				"fill": "225-#fbb03b:20-#fbb03b:50",				
 				'stroke': 'black',
 				"stroke-width": 1
-			});
+			}).toBack();			
 		}	
 	}
 	this.setShowDistance=function(distance){

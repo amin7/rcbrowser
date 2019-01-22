@@ -34,6 +34,9 @@ protected:
   bool inited_ = false;
   virtual void processDate(const uint8_t *buffer)=0;
 public:
+  bool isInited() const {
+    return inited_;
+  }
   bool init();
   void main();
 };

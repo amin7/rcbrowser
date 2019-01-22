@@ -42,6 +42,7 @@ bool handle_config(const rapidjson::Document &d, rapidjson::Document &reply) {
   cameras.PushBack(cameras_chasis, allocator);
   reply.AddMember("cameras", cameras, allocator);
 #endif
+  reply.AddMember("orientation", mpu6050.isInited(), allocator);
   return true;
 }
 bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
@@ -56,6 +57,9 @@ bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
 }
 
 bool handle_mpu6050(const rapidjson::Document &d, rapidjson::Document &reply) {
+  if (!mpu6050.isInited()) {
+    return false;
+  }
   auto &allocator = reply.GetAllocator();
   array<int16_t, 3> yaw_pitch_roll;
   array<int16_t, 3> aw;

@@ -300,6 +300,9 @@ void MPU6050_dmp_test() {
   }
 }
 void MPU6050_DMP_func::processDate(const uint8_t *buffer) {
+  if (nullptr == buffer) {
+    return;
+  }
   Quaternion q;           // [w, x, y, z]         quaternion container
   VectorInt16 aa;         // [x, y, z]            accel sensor measurements
   VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
@@ -310,6 +313,7 @@ void MPU6050_DMP_func::processDate(const uint8_t *buffer) {
   //  OUTPUT_READABLE_EULER
   // display Euler angles in degrees
   dmpGetQuaternion(&q, buffer);
+  dmpGetEuler(euler, &q);
   dmpGetGravity(&gravity, &q);
   dmpGetYawPitchRoll(ypr, &q, &gravity);
   dmpGetAccel(&aa, buffer);
@@ -321,9 +325,15 @@ void MPU6050_DMP_func::processDate(const uint8_t *buffer) {
   yaw_pitch_roll_[1] = ypr[1] * 180 / M_PI;
   yaw_pitch_roll_[2] = ypr[2] * 180 / M_PI;
 
+//  yaw_pitch_roll_[0] = euler[0] * 180 / M_PI;
+//  yaw_pitch_roll_[1] = euler[1] * 180 / M_PI;
+//  yaw_pitch_roll_[2] = euler[2] * 180 / M_PI;
+
   aw[0] = aaWorld.x;
   aw[1] = aaWorld.y;
   aw[2] = aaWorld.z;
+
+
 }
 
 void MPU6050_DMP_func::get(int16_t *yaw_pitch_roll, int16_t *aworld) {

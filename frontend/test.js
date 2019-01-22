@@ -63,5 +63,5 @@ function createXmlHttpObject(){
 	pwm_range=document.getElementById('pwm_range');
 	
 	orientation=new Orientation({id:"orient_id"});
-	setInterval(get_orientation,100);
+	setInterval(get_orientation,300);
 }
