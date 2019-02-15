@@ -44,11 +44,13 @@ public:
 class MPU6050_DMP_func: public MPU6050_DMP {
 protected:
   std::mutex date_mx_;
-  std::array<int16_t, 3> yaw_pitch_roll_;
-  std::array<int16_t, 3> aw;  //accel world
+  float euler_[3];         // [psi, theta, phi]    Euler angle container
+  float yaw_pitch_roll_[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+  Quaternion q_;           // [w, x, y, z]         quaternion container
+  VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
   virtual void processDate(const uint8_t *buffer);
   public:
-  void get(int16_t *yaw_pitch_roll, int16_t *aworld);
+  void get(int16_t *yaw_pitch_roll, int16_t *aworld, Quaternion &q);
 };
 
 void MPU6050_main();

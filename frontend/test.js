@@ -47,7 +47,8 @@ function createXmlHttpObject(){
 	      if(xmlHttp.status == 200) {
 	        var res = JSON.parse(xmlHttp.responseText);        
 	        console.log(res);
-	        orientation.set(res.roll,res.pitch,res.yaw);
+	        //orientation.set(res.roll,res.pitch,res.yaw);
+	        orientation.setq(res.qy,res.qz,res.qx,res.qw);
 	      }
 	    }
 	  };
@@ -63,5 +64,5 @@ function createXmlHttpObject(){
 	pwm_range=document.getElementById('pwm_range');
 	
 	orientation=new Orientation({id:"orient_id"});
-	setInterval(get_orientation,300);
+	setInterval(get_orientation,100);
 }

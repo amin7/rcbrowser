@@ -63,7 +63,8 @@ bool handle_mpu6050(const rapidjson::Document &d, rapidjson::Document &reply) {
   auto &allocator = reply.GetAllocator();
   array<int16_t, 3> yaw_pitch_roll;
   array<int16_t, 3> aw;
-  mpu6050.get(yaw_pitch_roll.data(), aw.data());
+  Quaternion q;
+  mpu6050.get(yaw_pitch_roll.data(), aw.data(), q);
   reply.AddMember("yaw", yaw_pitch_roll[0], allocator);
   reply.AddMember("pitch", yaw_pitch_roll[1], allocator);
   reply.AddMember("roll", yaw_pitch_roll[2], allocator);
@@ -71,6 +72,13 @@ bool handle_mpu6050(const rapidjson::Document &d, rapidjson::Document &reply) {
   reply.AddMember("awx", aw[0], allocator);
   reply.AddMember("awy", aw[1], allocator);
   reply.AddMember("awz", aw[2], allocator);
+
+  reply.AddMember("qx", q.x, allocator);
+  reply.AddMember("qy", q.y, allocator);
+  reply.AddMember("qz", q.z, allocator);
+  reply.AddMember("qw", q.w, allocator);
+
+
   return true;
 }
 

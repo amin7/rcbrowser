@@ -214,7 +214,8 @@ void MPU6050_DMP::main() {
     if (mpuIntStatus & (1 << MPU6050_INTERRUPT_FIFO_OFLOW_BIT) || fifoCount >= 1024) {
       // reset so we can continue cleanly
       resetFIFO();
-      cout << "FIFO overflow!" << endl;
+      cerr << "FIFO overflow!";
+      cerr << "fifoCount=" << fifoCount << endl;
       continue;
     }
     while (fifoCount >= packetSize) {
@@ -299,44 +300,36 @@ void MPU6050_dmp_test() {
     DMP_test.main();
   }
 }
+inline int16_t toDegry(float in) {
+  return in * 180 / M_PI;
+}
+
 void MPU6050_DMP_func::processDate(const uint8_t *buffer) {
   if (nullptr == buffer) {
     return;
   }
-  Quaternion q;           // [w, x, y, z]         quaternion container
   VectorInt16 aa;         // [x, y, z]            accel sensor measurements
   VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
-  VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
   VectorFloat gravity;    // [x, y, z]            gravity vector
-  float euler[3];         // [psi, theta, phi]    Euler angle container
-  float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+
   //  OUTPUT_READABLE_EULER
   // display Euler angles in degrees
-  dmpGetQuaternion(&q, buffer);
-  dmpGetEuler(euler, &q);
-  dmpGetGravity(&gravity, &q);
-  dmpGetYawPitchRoll(ypr, &q, &gravity);
+  std::lock_guard<std::mutex> lock(date_mx_);
+  dmpGetQuaternion(&q_, buffer);
+  dmpGetEuler(euler_, &q_);
+  dmpGetGravity(&gravity, &q_);
+  dmpGetYawPitchRoll(yaw_pitch_roll_, &q_, &gravity);
   dmpGetAccel(&aa, buffer);
   dmpGetLinearAccel(&aaReal, &aa, &gravity);
-  dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
+  dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q_);
 
-  std::lock_guard<std::mutex> lock(date_mx_);
-  yaw_pitch_roll_[0] = ypr[0] * 180 / M_PI;
-  yaw_pitch_roll_[1] = ypr[1] * 180 / M_PI;
-  yaw_pitch_roll_[2] = ypr[2] * 180 / M_PI;
-
-//  yaw_pitch_roll_[0] = euler[0] * 180 / M_PI;
-//  yaw_pitch_roll_[1] = euler[1] * 180 / M_PI;
-//  yaw_pitch_roll_[2] = euler[2] * 180 / M_PI;
-
-  aw[0] = aaWorld.x;
-  aw[1] = aaWorld.y;
-  aw[2] = aaWorld.z;
-
+//  cout << "X" << toDegry(q.x) << " Y" << toDegry(q.y) << " Z" << toDegry(q.z) << " W" << q.w << " ";
+//  cout << "eX" << toDegry(euler[0]) << " Y" << toDegry(euler[1]) << " Z" << toDegry(euler[2]);
+//  cout << endl;
 
 }
 
-void MPU6050_DMP_func::get(int16_t *yaw_pitch_roll, int16_t *aworld) {
+void MPU6050_DMP_func::get(int16_t *yaw_pitch_roll, int16_t *aworld, Quaternion &q) {
   std::lock_guard<std::mutex> lock(date_mx_);
   if (yaw_pitch_roll) {
     yaw_pitch_roll[0] = yaw_pitch_roll_[0];
@@ -344,9 +337,10 @@ void MPU6050_DMP_func::get(int16_t *yaw_pitch_roll, int16_t *aworld) {
     yaw_pitch_roll[2] = yaw_pitch_roll_[2];
   }
   if (aworld) {
-    aworld[0] = aw[0];
-    aworld[1] = aw[1];
-    aworld[2] = aw[2];
+    aworld[0] = aaWorld.x;
+    aworld[1] = aaWorld.y;
+    aworld[2] = aaWorld.z;
   }
+  q = q_;
 }
 

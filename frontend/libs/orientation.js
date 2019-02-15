@@ -49,7 +49,12 @@ function Orientation(opts){
 	this.set=function(roll,pitch,yaw){
 		mesh.rotation.z = roll*Math.PI/180;
 		mesh.rotation.x = pitch*Math.PI/180;
-		mesh.rotation.y = yaw*Math.PI/180;
+		mesh.rotation.y = yaw*Math.PI/180;		
+		renderer.render( scene, camera );		
+	}
+	this.setq=function(x,y,z,w){
+		var quaternion = new THREE.Quaternion(x,y,z,w);
+		mesh.setRotationFromQuaternion (quaternion);
 		renderer.render( scene, camera );		
 	}
 }
