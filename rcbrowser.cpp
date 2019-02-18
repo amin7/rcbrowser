@@ -171,6 +171,26 @@ enum {
   http_err_InternallError = 500
 };
 
+mg_str get_uri_callback(const mg_str &query_string) {
+  mg_str callback_ = { nullptr, 0 };
+  if (query_string.len) {
+    callback_.p = mg_strstr(query_string, mg_mk_str("callback="));
+    constexpr auto callback_sz = sizeof("callback=") - 1; //no zero
+    if (callback_.p) {
+      callback_.p += callback_sz;
+      callback_.len = query_string.len - static_cast<size_t>(callback_.p - query_string.p);
+      size_t pos = 0;
+      while (pos < callback_.len) {
+        if (callback_.p[pos] == '&') {
+          break;
+        }
+        pos++;
+      }
+      callback_.len = pos;
+    }
+  }
+  return callback_;
+}
 
 void command_handler(struct mg_connection *nc, struct http_message *hm, const CHttpCmdHandler::cmd_hander_t &handler) {
   int status_code = http_err_BadRequest;
@@ -178,6 +198,7 @@ void command_handler(struct mg_connection *nc, struct http_message *hm, const CH
   rapidjson::Document part_cmd;
   rapidjson::Document part_reply;
   part_reply.SetObject();
+  auto callback_ = get_uri_callback(hm->query_string);
   do {
     print(hm->body);
     string json;
@@ -199,7 +220,7 @@ void command_handler(struct mg_connection *nc, struct http_message *hm, const CH
       c_reply = buffer.GetString();
       cout << "reply=" << c_reply << endl;
       const auto reply_sz = strlen(c_reply);
-      mg_send_head(nc, status_code, reply_sz, nullptr);
+      mg_send_head(nc, status_code, reply_sz, "Content-Type: application/json");
       mg_send(nc, c_reply, reply_sz);
       nc->flags |= MG_F_SEND_AND_CLOSE;
       return;

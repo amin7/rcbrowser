@@ -44,6 +44,9 @@ sudo /etc/init.d/rcbrowser stop
 sudo /etc/init.d/rcbrowser start
 sudo mount -a
 gpio i2cdetect
+./obj/rcbrowser -f ~/git_net/rcbrowser/frontend/
+ make clean;make -j4
+
 
 https://marketplace.eclipse.org/content/direct-remote-c-debugging
 
