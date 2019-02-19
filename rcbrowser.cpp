@@ -192,6 +192,17 @@ mg_str get_uri_callback(const mg_str &query_string) {
   return callback_;
 }
 
+void StringBuffer_helper(rapidjson::StringBuffer &buffer, string msg) {
+  for (auto const ch : msg) {
+    buffer.Put(ch);
+  }
+}
+
+void StringBuffer_helper(rapidjson::StringBuffer &buffer, const mg_str &msg) {
+  for (size_t pos = 0; pos < msg.len; pos++) {
+    buffer.Put(msg.p[pos]);
+  }
+}
 void command_handler(struct mg_connection *nc, struct http_message *hm, const CHttpCmdHandler::cmd_hander_t &handler) {
   int status_code = http_err_BadRequest;
   const char *c_reply = "";
@@ -215,8 +226,17 @@ void command_handler(struct mg_connection *nc, struct http_message *hm, const CH
     if (handler(part_cmd, part_reply)) {
       status_code = http_err_Ok; //ok
       rapidjson::StringBuffer buffer;
+      if (callback_.len) { //format jsonP
+        StringBuffer_helper(buffer, callback_);
+        StringBuffer_helper(buffer, "(");
+      }
+
       rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
       part_reply.Accept(writer);
+
+      if (callback_.len) { //format jsonP
+        StringBuffer_helper(buffer, ");");
+      }
       c_reply = buffer.GetString();
       cout << "reply=" << c_reply << endl;
       const auto reply_sz = strlen(c_reply);
