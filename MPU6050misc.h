@@ -47,10 +47,14 @@ protected:
   float euler_[3];         // [psi, theta, phi]    Euler angle container
   float yaw_pitch_roll_[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
   Quaternion q_;           // [w, x, y, z]         quaternion container
-  VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
+  VectorFloat accel_;
+  VectorFloat speed_;
+  VectorFloat position_;
   virtual void processDate(const uint8_t *buffer);
+  float convert_accel(int16_t val) const;
   public:
-  void get(int16_t *yaw_pitch_roll, int16_t *aworld, Quaternion &q);
+  static constexpr auto GRAVITY = 9.807; //m/s*s
+  void get(float *yaw_pitch_roll, VectorFloat &accel, Quaternion &q, VectorFloat &pos, VectorFloat &speed);
 };
 
 void MPU6050_main();

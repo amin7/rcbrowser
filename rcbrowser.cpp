@@ -61,22 +61,44 @@ bool handle_mpu6050(const rapidjson::Document &d, rapidjson::Document &reply) {
     return false;
   }
   auto &allocator = reply.GetAllocator();
-  array<int16_t, 3> yaw_pitch_roll;
-  array<int16_t, 3> aw;
+  array<float, 3> yaw_pitch_roll;
+  VectorFloat accel;
+  VectorFloat pos;
+  VectorFloat speed;
   Quaternion q;
-  mpu6050.get(yaw_pitch_roll.data(), aw.data(), q);
-  reply.AddMember("yaw", yaw_pitch_roll[0], allocator);
-  reply.AddMember("pitch", yaw_pitch_roll[1], allocator);
-  reply.AddMember("roll", yaw_pitch_roll[2], allocator);
+  mpu6050.get(yaw_pitch_roll.data(), accel, q, pos, speed);
+      ;
+  rapidjson::Value ypr(rapidjson::kObjectType);
+  ypr.AddMember("yaw", yaw_pitch_roll[0], allocator);
+  ypr.AddMember("pitch", yaw_pitch_roll[1], allocator);
+  ypr.AddMember("roll", yaw_pitch_roll[2], allocator);
 
-  reply.AddMember("awx", aw[0], allocator);
-  reply.AddMember("awy", aw[1], allocator);
-  reply.AddMember("awz", aw[2], allocator);
+  reply.AddMember("ypr", ypr, allocator);
 
-  reply.AddMember("qx", q.x, allocator);
-  reply.AddMember("qy", q.y, allocator);
-  reply.AddMember("qz", q.z, allocator);
-  reply.AddMember("qw", q.w, allocator);
+  rapidjson::Value aworld(rapidjson::kObjectType);
+  aworld.AddMember("x", accel.x, allocator);
+  aworld.AddMember("y", accel.y, allocator);
+  aworld.AddMember("z", accel.z, allocator);
+  reply.AddMember("accel", aworld, allocator);
+
+  rapidjson::Value speed_g(rapidjson::kObjectType);
+  speed_g.AddMember("x", speed.x, allocator);
+  speed_g.AddMember("y", speed.y, allocator);
+  speed_g.AddMember("z", speed.z, allocator);
+  reply.AddMember("speed", speed_g, allocator);
+
+  rapidjson::Value quaternion(rapidjson::kObjectType);
+  quaternion.AddMember("x", q.x, allocator);
+  quaternion.AddMember("y", q.y, allocator);
+  quaternion.AddMember("z", q.z, allocator);
+  quaternion.AddMember("w", q.w, allocator);
+  reply.AddMember("quaternion", quaternion, allocator);
+
+  rapidjson::Value position(rapidjson::kObjectType);
+  position.AddMember("x", pos.x, allocator);
+  position.AddMember("y", pos.y, allocator);
+  position.AddMember("z", pos.z, allocator);
+  reply.AddMember("position", position, allocator);
 
 
   return true;

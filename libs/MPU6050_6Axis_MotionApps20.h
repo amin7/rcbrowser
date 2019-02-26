@@ -387,7 +387,7 @@ uint8_t MPU6050::dmpInitialize() {
             DEBUG_PRINTLN(F("Success! DMP configuration written and verified."));
 
             DEBUG_PRINTLN(F("Setting clock source to Z Gyro..."));
-            setClockSource(MPU6050_CLOCK_PLL_ZGYRO);
+      setClockSource(MPU6050_CLOCK_PLL_XGYRO);
 
             DEBUG_PRINTLN(F("Setting DMP and FIFO_OFLOW interrupts enabled..."));
             setIntEnabled(1<<MPU6050_INTERRUPT_FIFO_OFLOW_BIT|1<<MPU6050_INTERRUPT_DMP_INT_BIT);
@@ -401,8 +401,10 @@ uint8_t MPU6050::dmpInitialize() {
             DEBUG_PRINTLN(F("Setting DLPF bandwidth to 42Hz..."));
             setDLPFMode(MPU6050_DLPF_BW_42);
 
-            DEBUG_PRINTLN(F("Setting gyro sensitivity to +/- 2000 deg/sec..."));
-            setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+      DEBUG_PRINTLN(F("Setting gyro sensitivity to +/- 2000 deg/sec..."));
+      setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+      //setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+      setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
 
             DEBUG_PRINTLN(F("Setting DMP programm start address"));
             //write start address MSB into register
@@ -419,9 +421,9 @@ uint8_t MPU6050::dmpInitialize() {
             setZGyroOffsetTC(zgOffsetTC);
 
             //DEBUG_PRINTLN(F("Setting X/Y/Z gyro user offsets to zero..."));
-            //setXGyroOffset(0);
-            //setYGyroOffset(0);
-            //setZGyroOffset(0);
+      //setXGyroOffset(0);
+      //setYGyroOffset(0);
+      //setZGyroOffset(0);
 
             DEBUG_PRINTLN(F("Writing final memory update 1/7 (function unknown)..."));
             uint8_t dmpUpdate[16], j;

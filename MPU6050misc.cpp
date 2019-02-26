@@ -185,7 +185,7 @@ void MPU6050_calibrate() {
 
 bool MPU6050_DMP::init() {
   setup();
-  initialize();
+  // initialize();
   if (dmpInitialize()) {
     return false;;
   }
@@ -204,6 +204,7 @@ void MPU6050_DMP::main() {
   // get expected DMP packet size for later comparison
   const auto packetSize = dmpGetFIFOPacketSize();
   cout << "FIFO packetSize=" << packetSize << endl;
+  const auto start_period = std::chrono::system_clock::now() + chrono::seconds(20);
   while (1) {
     //wait data
     this_thread::sleep_for(chrono::milliseconds(1));
@@ -222,7 +223,9 @@ void MPU6050_DMP::main() {
       uint8_t fifoBuffer[packetSize];
       getFIFOBytes(fifoBuffer, packetSize);
       fifoCount -= packetSize;
-      processDate(fifoBuffer);
+      if (start_period < std::chrono::system_clock::now()) {
+        processDate(fifoBuffer);
+      }
     }
   }
 }
@@ -303,14 +306,18 @@ void MPU6050_dmp_test() {
 inline int16_t toDegry(float in) {
   return in * 180 / M_PI;
 }
-
+float MPU6050_DMP_func::convert_accel(int16_t val) const {
+  //+-2g for MPU6050_ACCEL_FS_2
+  return static_cast<float>(static_cast<int32_t>(val) * 4) * GRAVITY / INT16_MAX;
+}
 void MPU6050_DMP_func::processDate(const uint8_t *buffer) {
   if (nullptr == buffer) {
     return;
   }
   VectorInt16 aa;         // [x, y, z]            accel sensor measurements
-  VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
   VectorFloat gravity;    // [x, y, z]            gravity vector
+  VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
+  VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
 
   //  OUTPUT_READABLE_EULER
   // display Euler angles in degrees
@@ -323,24 +330,38 @@ void MPU6050_DMP_func::processDate(const uint8_t *buffer) {
   dmpGetLinearAccel(&aaReal, &aa, &gravity);
   dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q_);
 
+
+  accel_.x = convert_accel(aaReal.x);
+  accel_.y = convert_accel(aaReal.y);
+  accel_.z = convert_accel(aaReal.z);
+
+  speed_.x += accel_.x * 1 / 200;
+  speed_.y += accel_.y * 1 / 200;
+  speed_.z += accel_.z * 1 / 200;
+  
+  position_.x += speed_.x * 1 / 200;
+  position_.y += speed_.y * 1 / 200;
+  position_.z += speed_.z * 1 / 200;
+
+
+//  cout << aaReal_.x << "         " << posx << endl;
 //  cout << "X" << toDegry(q.x) << " Y" << toDegry(q.y) << " Z" << toDegry(q.z) << " W" << q.w << " ";
 //  cout << "eX" << toDegry(euler[0]) << " Y" << toDegry(euler[1]) << " Z" << toDegry(euler[2]);
 //  cout << endl;
 
 }
 
-void MPU6050_DMP_func::get(int16_t *yaw_pitch_roll, int16_t *aworld, Quaternion &q) {
+void MPU6050_DMP_func::get(float *yaw_pitch_roll, VectorFloat &accel, Quaternion &q, VectorFloat &pos, VectorFloat &speed) {
   std::lock_guard<std::mutex> lock(date_mx_);
   if (yaw_pitch_roll) {
     yaw_pitch_roll[0] = yaw_pitch_roll_[0];
     yaw_pitch_roll[1] = yaw_pitch_roll_[1];
     yaw_pitch_roll[2] = yaw_pitch_roll_[2];
   }
-  if (aworld) {
-    aworld[0] = aaWorld.x;
-    aworld[1] = aaWorld.y;
-    aworld[2] = aaWorld.z;
-  }
+
+  accel = accel_;
   q = q_;
+  pos = position_;
+  speed = speed_;
 }
 
