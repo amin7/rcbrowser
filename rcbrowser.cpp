@@ -170,20 +170,32 @@ bool handle_wheels(const rapidjson::Document &d, rapidjson::Document &reply) {
 }
 
 constexpr auto pin_manipulator_base = 4;
-constexpr auto pin_manipulator_l = 5;
-constexpr auto pin_manipulator_r = 6;
+constexpr auto pin_elbow = 5;
+constexpr auto pin_shoulder = 6;
 
-CManipulator manipulator(pin_manipulator_base, pin_manipulator_l, pin_manipulator_r);
+CManipulator manipulator(pin_manipulator_base, pin_shoulder, pin_elbow);
 
 bool handle_manipulator(const rapidjson::Document &d, rapidjson::Document &reply) {
+
+  if (d.HasMember("bse")) {
+    const auto &bse = d["bse"];
+    const auto base = bse["base"].GetInt();
+    const auto shoulder = bse["shoulder"].GetInt();
+    const auto elbow = bse["elbow"].GetInt();
+    manipulator.set_bse(base, shoulder, elbow);
+    return true;
+  }
+  if (d.HasMember("xyz")) {
   const int16_t x = d["X"].GetInt();
   const int16_t y = d["Y"].GetInt();
   const int16_t z = d["Z"].GetInt();
 
   cout << "manipulator=" << x << ":" << y << ":" << z;
   cout << endl;
-  manipulator.set_absolute(x, y, z);
+    manipulator.set_xyz(x, y, z);
   return true;
+  }
+  return false;
 }
 
 enum {

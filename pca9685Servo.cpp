@@ -18,8 +18,11 @@ using namespace std;
 mutex mu;
 
 pca9685_Servo::pca9685_Servo(uint8_t _pin) :
-    pin_(_pin), minVal(0), maxVal(100), minPulse(0), maxPulse(2.5 * (50.0f * maxPWM / 1000))
-{
+    pca9685_Servo(_pin, 0, 100) {
+}
+pca9685_Servo::pca9685_Servo(uint8_t _pin, int16_t _minVal, int16_t _maxVal):
+    pca9685_Servo(_pin, _minVal, _maxVal, 0, 2.5 * (50.0f * maxPWM / 1000)) {
+
 }
 
 pca9685_Servo::pca9685_Servo(uint8_t _pin, int16_t _minVal, int16_t _maxVal, uint16_t _minPulse, uint16_t _maxPulse):

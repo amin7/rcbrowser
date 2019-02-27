@@ -1,0 +1,43 @@
+<html>
+  <head>
+  <style>
+    #orient_id{
+        width:600px;
+        height:600px;
+    }
+    </style>
+    
+  <title>test manipulator</title>  
+  <script src="libs/math.js"></script>
+  <script src="libs/jquery-2.1.1.js"></script>
+  <script src="libs/jquery.mobile.custom.js"></script>
+  <script src="test_manipulator.js"></script>
+  </head>
+  <body>
+
+  BSE
+  </br>
+  base 
+  <input type="range" id="id_base" min="0" max="180" Value="0" oninput="set_bse()">
+  </br>
+  shoulder 
+  <input type="range" id="id_shoulder" min="0" max="180" Value="0" oninput="set_bse()">
+  </br>
+  elbow 
+  <input type="range" id="id_elbow" min="0" max="180" Value="0" oninput="set_bse()">
+  </br>
+  <hr>
+  XYZ transf
+  </br>
+  X 
+  <input type="range" id="id_x" min="0" max="100" Value="0" oninput="set_xyz_trans()">
+  </br>
+  Y 
+  <input type="range" id="id_y" min="0" max="100" Value="0" oninput="set_xyz_trans()">
+  </br>
+  Z 
+  <input type="range" id="id_z" min="0" max="100" Value="0" oninput="set_xyz_trans()">
+  </br>     
+  <hr>
+  XYZ     
+</html>
