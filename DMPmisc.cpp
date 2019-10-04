@@ -63,7 +63,9 @@ void dmp_main()
     // is available. It will return a boolean true or false
     // (New magnetometer data cannot be checked, as the library
     //  runs that sensor in single-conversion mode.)
-    if (imu.dataReady())
+    while (1)
+
+        if (imu.dataReady())
     {
         // Call update() to update the imu objects sensor data.
         // You can specify which sensors to update by combining
@@ -74,6 +76,7 @@ void dmp_main()
         imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
         printIMUData();
   }
+    cout << "done" << std::endl;
 }
 
 void printIMUData(void)
@@ -96,12 +99,8 @@ void printIMUData(void)
     float magZ = imu.calcMag(imu.mz);
   
 
-//    cout << "Accel: " + String(accelX) + ", " +
-//            String(accelY) + ", " + String(accelZ) + " g");
-//    cout << ("Gyro: " + String(gyroX) + ", " +
-//            String(gyroY) + ", " + String(gyroZ) + " dps");
-//    cout << ("Mag: " + String(magX) + ", " +
-//            String(magY) + ", " + String(magZ) + " uT");
-//    cout << ("Time: " + String(imu.time) + " ms");
-cout << std::endl;
+    cout << "Accel: " << accelX << ", " << +accelY << ", " << accelZ << std::endl;
+    cout << "Gyro: " << gyroX << ", " << +gyroY << ", " << gyroZ << std::endl;
+    cout << "Mag: " << magX << ", " << +magY << ", " << magZ << std::endl;
+    cout << "Time: " << imu.time << " ms" << std::endl;
 }

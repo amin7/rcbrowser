@@ -22,8 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <thread>
-#include <chrono>
+#include <algorithm>
 #include "inv_mpu.h"
 using namespace std;
 
@@ -40,17 +39,20 @@ using namespace std;
  * min(int a, int b)
  */
 #define MPU9250
-#define i2c_write(a, b, c, d)  0
-#define i2c_read(a, b, c, d)  0
+#include "arduino_mpu9250_i2c.h"
+#include "arduino_mpu9250_clk.h"
+#include "arduino_mpu9250_log.h"
+#define i2c_write(a, b, c, d) arduino_i2c_write(a, b, c, d)
+#define i2c_read(a, b, c, d)  arduino_i2c_read(a, b, c, d)
+#define delay_ms  arduino_delay_ms
+#define get_ms    arduino_get_clock_ms
+#define log_i(vars...)     _MLPrintLog ("",vars)
+#define log_e(vars...)     _MLPrintLog ("",vars)
 
-#define delay_ms(val) this_thread::sleep_for(chrono::milliseconds(val))
 
-#define get_ms(val)     val*= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).count()
-#define log_i
-#define log_e
-static inline void reg_int_cb(struct int_param_s *int_param)
+static inline int reg_int_cb(struct int_param_s *int_param)
 {
-	
+    return 0;
 }
 
 #if !defined MPU6050 && !defined MPU9150 && !defined MPU6500 && !defined MPU9250
@@ -470,48 +472,49 @@ static struct gyro_state_s st = {
 };
 #elif defined MPU6500
 const struct gyro_reg_s reg = {
-    .who_am_i       = 0x75,
-    .rate_div       = 0x19,
-    .lpf            = 0x1A,
-    .prod_id        = 0x0C,
-    .user_ctrl      = 0x6A,
-    .fifo_en        = 0x23,
-    .gyro_cfg       = 0x1B,
-    .accel_cfg      = 0x1C,
-    .accel_cfg2     = 0x1D,
-    .lp_accel_odr   = 0x1E,
-    .motion_thr     = 0x1F,
-    .motion_dur     = 0x20,
-    .fifo_count_h   = 0x72,
-    .fifo_r_w       = 0x74,
-    .raw_gyro       = 0x43,
-    .raw_accel      = 0x3B,
-    .temp           = 0x41,
-    .int_enable     = 0x38,
-    .dmp_int_status = 0x39,
-    .int_status     = 0x3A,
-    .accel_intel    = 0x69,
-    .pwr_mgmt_1     = 0x6B,
-    .pwr_mgmt_2     = 0x6C,
-    .int_pin_cfg    = 0x37,
-    .mem_r_w        = 0x6F,
-    .accel_offs     = 0x77,
-    .i2c_mst        = 0x24,
-    .bank_sel       = 0x6D,
-    .mem_start_addr = 0x6E,
-    .prgm_start_h   = 0x70
-#ifdef AK89xx_SECONDARY
-    ,.raw_compass   = 0x49,
-    .s0_addr        = 0x25,
-    .s0_reg         = 0x26,
-    .s0_ctrl        = 0x27,
-    .s1_addr        = 0x28,
-    .s1_reg         = 0x29,
-    .s1_ctrl        = 0x2A,
-    .s4_ctrl        = 0x34,
-    .s0_do          = 0x63,
-    .s1_do          = 0x64,
-    .i2c_delay_ctrl = 0x67
+        .who_am_i = 0x75,
+        .rate_div = 0x19,
+        .lpf = 0x1A,
+        .prod_id = 0x0C,
+        .user_ctrl = 0x6A,
+        .fifo_en = 0x23,
+        .gyro_cfg = 0x1B,
+        .accel_cfg = 0x1C,
+        .accel_cfg2 = 0x1D,
+        .lp_accel_odr = 0x1E,
+        .motion_thr = 0x1F,
+        .motion_dur = 0x20,
+        .fifo_count_h = 0x72,
+        .fifo_r_w = 0x74,
+        .raw_gyro = 0x43,
+        .raw_accel = 0x3B,
+        .temp = 0x41,
+        .int_enable = 0x38,
+        .dmp_int_status = 0x39,
+        .int_status = 0x3A,
+        .accel_intel = 0x69,
+        .pwr_mgmt_1 = 0x6B,
+        .pwr_mgmt_2 = 0x6C,
+        .int_pin_cfg = 0x37,
+        .mem_r_w = 0x6F,
+        .accel_offs = 0x77,
+        .i2c_mst = 0x24,
+        .bank_sel = 0x6D,
+        .mem_start_addr = 0x6E,
+        .prgm_start_h = 0x70
+        #ifdef AK89xx_SECONDARY
+        , .s0_addr = 0x25,
+        .s0_reg = 0x26,
+        .s0_ctrl = 0x27,
+        .s1_addr = 0x28,
+        .s1_reg = 0x29,
+        .s1_ctrl = 0x2A,
+        .s4_ctrl = 0x34,
+        .s0_do = 0x63,
+        .s1_do = 0x64,
+        .i2c_delay_ctrl = 0x67,
+        .raw_compass = 0x49,
+        .yg_offs_tc = 0
 #endif
 };
 const struct hw_s hw = {
@@ -546,9 +549,10 @@ const struct test_s test = {
 };
 
 static struct gyro_state_s st = {
-    .reg = &reg,
-    .hw = &hw,
-    .test = &test
+        .reg = &reg,
+        .hw = &hw,
+        .chip_cfg = { 0 },
+        .test = &test
 };
 #endif
 
@@ -648,7 +652,6 @@ int mpu_read_reg(unsigned char reg, unsigned char *data)
 int mpu_init(struct int_param_s *int_param)
 {
     unsigned char data[6];
-
     /* Reset device. */
     data[0] = BIT_RESET;
     if (i2c_write(st.hw->addr, st.reg->pwr_mgmt_1, 1, data))
@@ -1363,7 +1366,7 @@ int mpu_set_sample_rate(unsigned short rate)
         st.chip_cfg.sample_rate = 1000 / (1 + data);
 
 #ifdef AK89xx_SECONDARY
-        mpu_set_compass_sample_rate(min(st.chip_cfg.compass_sample_rate, MAX_COMPASS_SAMPLE_RATE));
+        mpu_set_compass_sample_rate(min(st.chip_cfg.compass_sample_rate, static_cast<short unsigned int>( MAX_COMPASS_SAMPLE_RATE)));
 #endif
 
         /* Automatically set LPF to 1/2 sampling rate. */

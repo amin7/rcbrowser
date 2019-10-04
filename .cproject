@@ -71,10 +71,10 @@
 		<buildTargets>
 			<target name="rcbrowser" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
-				<buildArguments/>
+				<buildArguments>./libs/mpu9250/util/rasp_mpu9250_clk.cpp</buildArguments>
 				<buildTarget>rcbrowser</buildTarget>
 				<stopOnError>true</stopOnError>
-				<useDefaultCommand>true</useDefaultCommand>
+				<useDefaultCommand>false</useDefaultCommand>
 				<runAllBuilders>true</runAllBuilders>
 			</target>
 		</buildTargets>

@@ -12,6 +12,7 @@ include module.mk
 MODULE_CFLAGS=-DMG_DISABLE_DAV_AUTH -DMG_ENABLE_FAKE_DAVLOCK
 
 CFLAGS += -g -W -Wall -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)  -std=c++11
+CFLAGS += -Wno-missing-field-initializers
 CFLAGS += -pthread
 CFLAGS += -ggdb
 

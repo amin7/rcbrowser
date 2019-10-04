@@ -27,8 +27,23 @@
 #include <chrono>
 using namespace std;
 
-#define get_ms(val)     val*= chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now()).count()
-
+/* The following functions must be defined for this platform:
+ * i2c_write(unsigned char slave_addr, unsigned char reg_addr,
+ *      unsigned char length, unsigned char const *data)
+ * i2c_read(unsigned char slave_addr, unsigned char reg_addr,
+ *      unsigned char length, unsigned char *data)
+ * delay_ms(unsigned long num_ms)
+ * get_ms(unsigned long *count)
+ */
+#include "arduino_mpu9250_i2c.h"
+#include "arduino_mpu9250_clk.h"
+#include "arduino_mpu9250_log.h"
+#define i2c_write(a, b, c, d) arduino_i2c_write(a, b, c, d)
+#define i2c_read(a, b, c, d)  arduino_i2c_read(a, b, c, d)
+#define delay_ms  arduino_delay_ms
+#define get_ms    arduino_get_clock_ms
+#define log_i(vars...)     _MLPrintLog ("",vars)
+#define log_e(vars...)     _MLPrintLog ("",vars)
 
 /* These defines are copied from dmpDefaultMPU6050.c in the general MPL
  * releases. These defines may change for each DMP image, so be sure to modify

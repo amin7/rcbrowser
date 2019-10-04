@@ -19,9 +19,8 @@ Supported Platforms:
 #include "MPU9250_RegisterMap.h"
 #include <cmath>
 #define PI M_PI
-extern "C" {
+
 #include "util/inv_mpu.h"
-}
 
 static unsigned char mpu9250_orientation;
 static unsigned char tap_count;
