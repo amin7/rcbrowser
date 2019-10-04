@@ -1,0 +1,9 @@
+proc            /proc           proc    defaults          0       0
+PARTUUID=6aa8bc47-01  /boot           vfat    defaults          0       2
+PARTUUID=6aa8bc47-02  /               ext4    defaults,noatime  0       1
+# a swapfile is not a swap partition, no line here
+#   use  dphys-swapfile swap[on|off]  for that
+
+#//192.168.1.128/git /home/pi/git_net/  cifs username=pi,password=,uid=1000
+#//192.168.1.2/git /home/pi/git_net/  cifs username=pi,password=rSteel#42,uid=1000
+//192.168.137.1/git /home/pi/git_net/  cifs username=pi,password=rSteel#42,uid=1000

@@ -52,21 +52,21 @@ public:
   virtual ~CRadar() {
     stop();
   }
-  const int16_t getMaxDistance() const
+    int16_t getMaxDistance() const
   {
     return hc_sr04.MAX_DISTANCE;
   }
-  const int16_t getAngleStep() const
+    int16_t getAngleStep() const
   {
     return hc_sr04.MEASURING_ANGLE;
   }
 
-  const int16_t getAngleMax() const
+    int16_t getAngleMax() const
   {
     return angle_max;
   }
 
-  const int16_t getAngleMin() const
+    int16_t getAngleMin() const
   {
     return angle_min;
   }

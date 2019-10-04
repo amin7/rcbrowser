@@ -3,8 +3,8 @@ function set_bse_(base,shoulder,elbow){
     var obj = new Object();
     obj.bse=bse=new Object();
     bse.base=Number(base);
-    bse.shoulder=Number(shoulder);
-    bse.elbow=Number(elbow);
+    bse.shoulder=180-Number(shoulder);
+    bse.elbow=Number(elbow)+Number(shoulder);
     
     var data = JSON.stringify(obj);
     xmlHttp.open('PUT','manipulator',true);

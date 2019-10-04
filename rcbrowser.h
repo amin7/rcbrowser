@@ -32,7 +32,7 @@
 #include "CManipulator.h"
 #include "CRadar.h"
 #include "CHttpCmdHandler.h"
-#include "MPU6050misc.h"
+#include "DMPmisc.h"
 #include "CPower.h"
 
 
@@ -41,7 +41,7 @@ constexpr auto radar_dir_pin_pca = 14;
 constexpr auto radar_trig_pin = 20;
 constexpr auto radar_echo_pin = 21;
 
-constexpr char *home_page = "/driver.html";
+constexpr auto home_page = "/driver.html";
 
 constexpr auto pca_pin_chasis_cameraY = 15;
 constexpr auto pwm_chasis_camera_min = 350;

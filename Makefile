@@ -4,34 +4,19 @@ ifeq ($(OS),Windows_NT)
 SIMULATION = 1
 CXX = arm-linux-gnueabihf-g++.exe
 endif
+SOURCES= 
+CFLAGS = 
+
+include module.mk
 
 MODULE_CFLAGS=-DMG_DISABLE_DAV_AUTH -DMG_ENABLE_FAKE_DAVLOCK
 
-SOURCES = rcbrowser.cpp
-SOURCES += ./libs/mongoose.c
-SOURCES += ./libs/I2Cdev.cpp
-SOURCES += ./libs/MPU6050.cpp
-SOURCES += CDCmotor.cpp
-SOURCES += pca9685Servo.cpp
-SOURCES += hc_sr04.cpp
-SOURCES += CManipulator.cpp
-SOURCES += CRadar.cpp
-SOURCES += CHttpCmdHandler.cpp
-SOURCES += MPU6050misc.cpp
-SOURCES += CPower.cpp
-ifndef SIMULATION
-SOURCES += ./libs/pca9685.c
-endif
-
-CFLAGS = -g -W -Wall -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)  -std=c++11
+CFLAGS += -g -W -Wall -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)  -std=c++11
 CFLAGS += -pthread
-CFLAGS += -I../rapidjson/include/
-CFLAGS += -I../pca9685/src
-CFLAGS += -I./libs
 CFLAGS += -ggdb
 
 ifdef SIMULATION
-CFLAGS +=  -D _SIMULATION_
+CFLAGS +=  -D _SIMULATION_ -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unused-variable
 else
 CFLAGS += -lwiringPi -lwiringPiDev -lpthread -lm
 endif
@@ -42,7 +27,6 @@ endif
 OBJ_DIR = ./obj/
 
 MKDIR_P = mkdir -p
-
 
 all: $(PROG)
 

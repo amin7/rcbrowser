@@ -13,6 +13,7 @@ bool CHttpCmdHandler::add(const string &cmd, const cmd_hander_t &handler) {
     return false; //already present
   }
   cmd_[cmd] = handler;
+    return true;
 }
 
 const CHttpCmdHandler::cmd_hander_t* CHttpCmdHandler::get_cmd_handler(const string &cmd) const {

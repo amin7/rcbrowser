@@ -5,13 +5,14 @@
  *      Author: ominenko
  */
 
-#ifndef MPU6050MISC_H_
-#define MPU6050MISC_H_
-#include "libs/MPU6050.h"
+#ifndef DMPMISC_H_
+#define DMPMISC_H_
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <mutex>
+#if 0
 class MPU6050_misc: private MPU6050 {
   int16_t ax, ay, az, gx, gy, gz;
   int16_t mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz;
@@ -56,8 +57,9 @@ protected:
   static constexpr auto GRAVITY = 9.807; //m/s*s
   void get(float *yaw_pitch_roll, VectorFloat &accel, Quaternion &q, VectorFloat &pos, VectorFloat &speed);
 };
+#endif
 
-void MPU6050_main();
-void MPU6050_dmp_test();
-void MPU6050_calibrate();
-#endif /* MPU6050MISC_H_ */
+void dmp_main();
+void dmp_dmp_test();
+void dmp_calibrate();
+#endif /* DMPMISC_H_ */

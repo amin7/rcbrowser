@@ -171,9 +171,10 @@ void Joystick_loop_test()
 }
 
 
-
+#if 0
 int main(int argc, char** argv)
 {
     Joystick_loop_test();
     return 0;
 }
+#endif

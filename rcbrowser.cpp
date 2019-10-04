@@ -15,7 +15,7 @@ void ultrasonic0_echo_handler() {
 
 pca9685_Servo chasis_camer(pca_pin_chasis_cameraY, 0, 100, pwm_chasis_camera_min, pwm_chasis_camera_max);
 CHttpCmdHandler http_cmd_handler;
-MPU6050_DMP_func mpu6050;
+//MPU6050_DMP_func mpu6050;
 CPower power;
 
 void print(mg_str str) {
@@ -42,7 +42,7 @@ bool handle_config(const rapidjson::Document &d, rapidjson::Document &reply) {
   cameras.PushBack(cameras_chasis, allocator);
   reply.AddMember("cameras", cameras, allocator);
 #endif
-  reply.AddMember("orientation", mpu6050.isInited(), allocator);
+    //reply.AddMember("orientation", mpu6050.isInited(), allocator);
   return true;
 }
 bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
@@ -57,6 +57,7 @@ bool handle_test(const rapidjson::Document &d, rapidjson::Document &reply) {
 }
 
 bool handle_mpu6050(const rapidjson::Document &d, rapidjson::Document &reply) {
+    /*
   if (!mpu6050.isInited()) {
     return false;
   }
@@ -100,7 +101,7 @@ bool handle_mpu6050(const rapidjson::Document &d, rapidjson::Document &reply) {
   position.AddMember("z", pos.z, allocator);
   reply.AddMember("position", position, allocator);
 
-
+     */
   return true;
 }
 
@@ -327,8 +328,7 @@ void init() {
   chasis_camer.init();
   radar.init(ultrasonic0_echo_handler);
   manipulator.init();
-  radar.start();
-  mpu6050.init();
+    radar.start();
 }
 
 
@@ -379,6 +379,9 @@ int main(int argc, char *argv[]) {
   init();
 
   cout << "Number of threads = " << thread::hardware_concurrency() << endl;
+#if 1
+    dmp_main();
+#else
   //MPU6050_main();
   //MPU6050_dmp_test();
   auto gyro_thread = std::thread([]() {mpu6050.main();});
@@ -410,6 +413,6 @@ int main(int argc, char *argv[]) {
     mg_mgr_poll(&mgr, 1000);
   }
   mg_mgr_free(&mgr);
-
+#endif
   return 0;
 }

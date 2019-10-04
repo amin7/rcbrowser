@@ -41,8 +41,15 @@ http://gnutoolchains.com/raspberry/
 
 []
 https://github.com/LLK/scratchx/wiki
+[start from usb]
+https://www.raspberrypi.org/documentation/hardware/raspberrypi/bootmodes/msd.md
+add program_usb_boot_mode=1 to  /boot/config.txt
+after reboot check if 
+$vcgencmd otp_dump | grep 17:
+17:3020000a
 
 [misk]
+sudo systemctl  rcbrowser
 sudo /etc/init.d/rcbrowser stop
 sudo /etc/init.d/rcbrowser start
 sudo mount -a

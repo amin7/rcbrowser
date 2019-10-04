@@ -20,7 +20,7 @@ public:
   bool init();
   int16_t getAIN(const uint8_t pin) const; //in mV
   int16_t getVBAT() const {
-    return getAIN(inA3) * 2; //divader 10k+10k
+        return getAIN(inA3) * 2; //Divider 10k+10k
     
   }
   int16_t get5V() const {
