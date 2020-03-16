@@ -317,10 +317,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 void init() {
 #ifndef _SIMULATION_
   int fd = 0;
-  //wiringPiSetup();
+    //  wiringPiSetup();
   wiringPiSetupGpio(); //use broadcom naming
   fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
   pca9685PWMReset(fd);
+    wiringPiI2CSetup(1);
 #endif
   power.init();
   motorR0.init();

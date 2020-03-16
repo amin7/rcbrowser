@@ -19,6 +19,7 @@
 #include <rapidjson/writer.h>
 #ifndef _SIMULATION_
 #include <wiringPi.h>
+#include <wiringPiI2C.h>
 #include "pca9685.h"
 #endif
 #include "CDCmotor.h"

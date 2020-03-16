@@ -17,18 +17,42 @@ Supported Platforms:
 ******************************************************************************/
 #include "arduino_mpu9250_i2c.h"
 #ifndef _SIMULATION_
+#include <sys/ioctl.h>
+#include <asm/ioctl.h>
+#include <linux/i2c-dev.h>
 #include <wiringPi.h>
+#include <wiringPiI2C.h>
+
+static int _fd = -1;
+static bool init(unsigned char slave_addr)
+{
+    if (-1 == _fd)
+    {
+        _fd = wiringPiI2CSetup(slave_addr);
+    }
+    return (_fd != -1);
+}
 
 int arduino_i2c_write(unsigned char slave_addr, unsigned char reg_addr,
         unsigned char length, unsigned char *data)
 {
-    return 0;
+    if (false == init(slave_addr))
+    {
+        return -1;
+    }
+
+    return i2c_smbus_write_i2c_block_data(_fd, slave_addr, length, data);
 }
 
 int arduino_i2c_read(unsigned char slave_addr, unsigned char reg_addr,
         unsigned char length, unsigned char *data)
 {
-    return 0;
+    if (false == init(slave_addr))
+    {
+        return -1;
+    }
+
+    return i2c_smbus_read_i2c_block_data(_fd, reg_addr, length, data);
 }
 
 #else
